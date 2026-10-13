@@ -1,0 +1,2614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DMX CashBack — Sistema de Gestão</title>
+  <meta name="description" content="Plataforma de gestão de cashback DMX — controle de clientes, lançamentos, boletos, notas e lotes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     0. TELA DE AUTENTICAÇÃO (Login / Cadastro / Recuperação)
+═══════════════════════════════════════════════════════ -->
+<div class="auth-overlay" id="authOverlay" style="display: none;">
+  <div class="company-selector-bg-deco" aria-hidden="true">
+    <div class="deco-circle deco-circle--1"></div>
+    <div class="deco-circle deco-circle--2"></div>
+    <div class="deco-dollar">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    
+    <!-- ── Visão de Login ── -->
+    <div id="authLoginView" style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="auth-header">
+        <div class="auth-logo-badge">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <h1 class="auth-title">DMX CashBack</h1>
+        <p class="auth-subtitle">Acesse sua conta para gerenciar o sistema</p>
+      </div>
+
+      <!-- Histórico local discreto de contas salvas -->
+      <div class="auth-saved-account" id="savedAccountBox" style="display: none;">
+        <div class="saved-account-user">
+          <div class="saved-avatar">DL</div>
+          <div>
+            <div class="saved-name" id="savedNameDisplay">Daniel Leme</div>
+            <div class="saved-email" id="savedEmailDisplay">leme@lemesys.com</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn--ghost btn--sm" id="useAnotherAccount" style="font-size: 11px;">Outra conta</button>
+          <button type="button" class="saved-remove-btn" id="removeSavedAccount" title="Remover deste dispositivo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulário de Login -->
+      <form id="loginForm" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label" for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" class="input" placeholder="seu.email@empresa.com" value="leme@lemesys.com" required autocomplete="username" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="loginPassword">Senha</label>
+          <div class="password-input-wrap">
+            <input type="password" id="loginPassword" class="input" placeholder="••••••••" value="123456" required autocomplete="current-password" />
+            <button type="button" class="btn-toggle-pw" id="togglePasswordBtn" aria-label="Mostrar ou ocultar senha">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-form-footer">
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;">
+            <input type="checkbox" id="rememberAccount" checked />
+            <span>Lembrar neste dispositivo</span>
+          </label>
+          <a href="#" class="auth-link" id="linkGoToForgot">Esqueci minha senha</a>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--md" id="loginSubmitBtn" style="width: 100%; height: 42px; margin-top: 4px;">
+          Entrar
+        </button>
+      </form>
+
+      <div style="text-align: center; font-size: 13px; color: var(--color-text-secondary); border-top: 1px solid var(--neutral-100); padding-top: 14px;">
+        Não possui uma conta? <a href="#" class="auth-link" id="linkGoToRegister">Criar conta</a>
+      </div>
+      <div style="text-align: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
+        É um consumidor com cashback? <a href="login-cliente.html" class="auth-link" style="font-weight: 700;">Acessar Área do Cliente →</a>
+      </div>
+    </div>
+
+    <!-- ── Visão de Cadastro ── -->
+    <div id="authRegisterView" style="display: none; flex-direction: column; gap: 18px;">
+      <div class="auth-header">
+        <h2 class="auth-title" style="font-size: 20px;">Criar nova conta</h2>
+        <p class="auth-subtitle">Informe seus dados para solicitar acesso</p>
+      </div>
+
+      <form id="registerForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="input-group">
+          <label class="input-label">Nome completo <span class="required-mark">*</span></label>
+          <input type="text" id="regName" class="input" placeholder="Ex: Roberto Carlos" required autocomplete="name" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">E-mail corporativo <span class="required-mark">*</span></label>
+          <input type="email" id="regEmail" class="input" placeholder="seu.email@empresa.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label">Senha <span class="required-mark">*</span></label>
+            <input type="password" id="regPassword" class="input" placeholder="••••••••" required autocomplete="new-password" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Confirmar senha <span class="required-mark">*</span></label>
+            <input type="password" id="regPasswordConfirm" class="input" placeholder="••••••••" required autocomplete="new-password" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Empresa vinculada (opcional)</label>
+          <input type="text" id="regCompany" class="input" placeholder="Nome da empresa ou loja" />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--md" id="regSubmitBtn" style="width: 100%; margin-top: 8px;">
+          Cadastrar conta
+        </button>
+
+        <button type="button" class="btn btn--ghost btn--sm" id="linkBackToLoginFromReg" style="width: 100%;">
+          Voltar para o login
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Visão de Esqueci a Senha ── -->
+    <div id="authForgotView" style="display: none; flex-direction: column; gap: 18px;">
+      <div class="auth-header">
+        <h2 class="auth-title" style="font-size: 20px;">Recuperar senha</h2>
+        <p class="auth-subtitle">Enviaremos um link de redefinição para o seu e-mail cadastrado</p>
+      </div>
+
+      <form id="forgotForm" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label">E-mail cadastrado <span class="required-mark">*</span></label>
+          <input type="email" class="input" placeholder="seu.email@empresa.com" required />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--md" style="width: 100%;">
+          Enviar instruções
+        </button>
+
+        <button type="button" class="btn btn--ghost btn--sm" id="linkBackToLoginFromForgot" style="width: 100%;">
+          Voltar para o login
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SELETOR DE EMPRESA (Pós-login para múltiplos acessos)
+═══════════════════════════════════════════════════════ -->
+<div class="company-selector-overlay" id="companySelectorOverlay" style="display: none;">
+  <div class="company-selector-bg-deco" aria-hidden="true">
+    <div class="deco-circle deco-circle--1"></div>
+    <div class="deco-circle deco-circle--2"></div>
+    <div class="deco-circle deco-circle--3"></div>
+  </div>
+
+  <div class="company-selector-card">
+    <div class="company-selector-header">
+      <div class="brand-mark-large">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="company-selector-title-wrap">
+        <h2 class="company-selector-title">Selecione a empresa</h2>
+        <p class="company-selector-subtitle">Escolha a unidade que deseja gerenciar agora</p>
+      </div>
+    </div>
+
+    <div class="company-selector-search-wrap">
+      <div class="input-search-wrap">
+        <span class="input-search-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="companySearch" class="input input-search" placeholder="Pesquisar empresa autorizada..." autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="company-list" id="companyList">
+      <div class="company-item company-item--selected" data-company="EMPRESA PADRÃO">
+        <div class="company-avatar company-avatar--ep">EP</div>
+        <span class="company-name">EMPRESA PADRÃO</span>
+        <span class="company-check">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </div>
+      <div class="company-item" data-company="DMX MARKETING">
+        <div class="company-avatar company-avatar--dm">DM</div>
+        <span class="company-name">DMX MARKETING</span>
+        <span class="company-check">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </div>
+      <div class="company-item" data-company="ONLY TEST">
+        <div class="company-avatar company-avatar--ot">OT</div>
+        <span class="company-name">ONLY TEST: DO NOT USE!</span>
+        <span class="company-check">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="company-selector-footer">
+      <button class="btn btn--ghost btn--sm" type="button" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Trocar de conta
+      </button>
+      <button class="btn btn--primary btn--md" id="enterBtn" type="button">
+        Entrar na empresa
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <div class="company-selector-version">v.8.5.0.1 [default]</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP SHELL PRINCIPAL
+═══════════════════════════════════════════════════════ -->
+<div class="app-shell" id="app">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ── SIDEBAR ────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu principal">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-brand">DMX <span style="color: #6EE7B7; font-weight: 800;">CashBack</span></span>
+      </div>
+    </div>
+
+    <!-- User Profile (Sem versão técnica, dinâmico por conta autenticada) -->
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" id="sidebarAvatarDisplay" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="sidebar-profile-info">
+        <span class="sidebar-profile-name" id="sidebarUserName">Daniel Leme</span>
+      </div>
+    </div>
+
+    <!-- Navigation Groups -->
+    <nav class="sidebar-nav">
+
+      <!-- Início -->
+      <div class="nav-item nav-item--standalone nav-item--active" onclick="navigateTo('dashboard')" role="menuitem" tabindex="0" data-tooltip="Início">
+        <span class="nav-item-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </span>
+        <span class="nav-item-label">Início</span>
+      </div>
+
+      <!-- CASHBACK Group -->
+      <div class="nav-group">
+        <div class="nav-group-label">Cashback</div>
+        <div class="nav-item nav-item--open" data-nav-group="cashback" role="button" tabindex="0" data-tooltip="CASHBACK">
+          <span class="nav-item-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </span>
+          <span class="nav-item-label">CASHBACK</span>
+          <span class="nav-item-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+        <div class="nav-submenu nav-submenu--open" id="submenu-cashback">
+          <div class="nav-subitem" data-nav-page="clientes" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Clientes
+          </div>
+          <div class="nav-subitem" data-nav-page="lancamentos" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Lançamentos de cashback
+          </div>
+          <div class="nav-subitem" data-nav-page="importar" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+            Importar planilha
+          </div>
+        </div>
+      </div>
+
+      <!-- GESTÃO Group -->
+      <div class="nav-group">
+        <div class="nav-group-label">Gestão</div>
+        <div class="nav-item nav-item--open" data-nav-group="gestao" role="button" tabindex="0" data-tooltip="GESTÃO">
+          <span class="nav-item-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          </span>
+          <span class="nav-item-label">GESTÃO</span>
+          <span class="nav-item-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+        <div class="nav-submenu nav-submenu--open" id="submenu-gestao">
+          <div class="nav-subitem" data-nav-page="boletos" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Boletos
+          </div>
+          <div class="nav-subitem" data-nav-page="notas" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Notas
+          </div>
+          <div class="nav-subitem" data-nav-page="lotes" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            Lotes
+          </div>
+          <div class="nav-subitem" data-nav-page="consulta-registros" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Consulta de Registros
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES ADMINISTRATIVAS (Restrito a Administradores) -->
+      <div class="nav-group admin-only" id="navGroupAdmin">
+        <div class="nav-group-label">Configurações Administrativas</div>
+        <div class="nav-item nav-item--open" data-nav-group="config-admin" role="button" tabindex="0" data-tooltip="ADMINISTRAÇÃO">
+          <span class="nav-item-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          <span class="nav-item-label">ADMINISTRAÇÃO</span>
+          <span class="nav-item-chevron" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </div>
+        <div class="nav-submenu nav-submenu--open" id="submenu-config-admin">
+          <div class="nav-subitem" data-nav-page="empresas" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            Empresas
+          </div>
+          <div class="nav-subitem" data-nav-page="usuarios" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+            Usuários
+          </div>
+          <div class="nav-subitem" data-nav-page="comunicacao" role="menuitem" tabindex="0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+            Comunicação e E-mails
+          </div>
+        </div>
+      </div>
+
+    </nav>
+  </aside>
+  <!-- /SIDEBAR -->
+
+  <!-- ── MAIN CONTENT ──────────────────────────────── -->
+  <div class="main-content" id="mainContent">
+
+    <!-- TOPBAR -->
+    <header class="topbar" role="banner">
+      <button class="topbar-toggle" id="topbarToggle" aria-label="Alternar menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <div class="topbar-divider" aria-hidden="true"></div>
+
+      <!-- Empresa e Rota Atual (Navegação Integrada e Compacta) -->
+      <div class="topbar-company">
+        <span class="topbar-company-name" id="companyNameDisplay">EMPRESA PADRÃO</span>
+        <span class="topbar-breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="topbar-breadcrumb-current" id="topbarCurrentPage">Início</span>
+      </div>
+
+      <div class="topbar-spacer"></div>
+
+      <!-- Topbar Actions -->
+      <div class="topbar-actions" style="position: relative; display: flex; align-items: center; gap: 8px;">
+
+        <!-- Notificações -->
+        <button class="topbar-action-btn" id="topbarNotifBtn" aria-label="Notificações" title="Central de Notificações">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notification-badge" id="notifBadge">5</span>
+        </button>
+
+        <!-- Central de Notificações Painel Flutuante -->
+        <div class="notifications-panel" id="notificationsPanel">
+          <div class="notifications-header">
+            <div class="notifications-title-wrap">
+              <span class="notifications-title">Notificações</span>
+              <span class="notif-unread-count" id="notifPanelCount">5 não lidas</span>
+            </div>
+            <button type="button" class="notif-mark-read-btn" id="notifMarkAllBtn">Marcar todas como lidas</button>
+          </div>
+
+          <div class="notifications-tabs">
+            <button type="button" class="notif-tab notif-tab--active" data-category="all">Todas</button>
+            <button type="button" class="notif-tab" data-category="unread">Não lidas</button>
+            <button type="button" class="notif-tab" data-category="cashback">Cashback</button>
+            <button type="button" class="notif-tab" data-category="import">Importação</button>
+            <button type="button" class="notif-tab" data-category="financial">Financeiro</button>
+          </div>
+
+          <div class="notifications-list" id="notifList"></div>
+        </div>
+
+        <!-- Configurações Gerais da Conta (Engrenagem) -->
+        <button class="topbar-action-btn" id="topbarSettingsBtn" aria-label="Configurações da conta" title="Configurações da Conta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+
+        <div class="topbar-divider" aria-hidden="true"></div>
+
+        <!-- Logout -->
+        <button class="topbar-action-btn topbar-action-btn--logout" aria-label="Sair da conta" title="Sair / Trocar de Conta" onclick="logout()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- PAGE WRAPPER -->
+    <main class="page-wrapper" role="main">
+
+      <!-- ─── SCREEN 1: DASHBOARD RESUMIDO (Início) ────────── -->
+      <div class="screen screen--active" id="screen-dashboard">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Painel de Controle</h1>
+              <p class="page-subtitle">Visão geral e resumo das operações financeiras e de cashback</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn--secondary btn--md" onclick="navigateTo('importar')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+                Importar Planilha
+              </button>
+              <button class="btn btn--primary btn--md" data-action="refresh">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Atualizar
+              </button>
+            </div>
+          </div>
+
+          <!-- Métricas Resumidas em Destaque -->
+          <div class="dashboard-metrics-grid">
+            <div class="dashboard-metric-card">
+              <div class="metric-card-icon" style="background: #E8F4EC; color: #348563;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+              <div class="metric-card-info">
+                <span class="metric-card-label">Total Importado</span>
+                <span class="metric-card-val">R$ 3.800,00</span>
+                <span class="metric-card-meta">4 lotes processados</span>
+              </div>
+            </div>
+
+            <div class="dashboard-metric-card">
+              <div class="metric-card-icon" style="background: #EBF5EE; color: #245440;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="metric-card-info">
+                <span class="metric-card-label">Saldo Disponível</span>
+                <span class="metric-card-val" style="color: #348563;">R$ 3.800,00</span>
+                <span class="metric-card-meta">100% disponível para uso</span>
+              </div>
+            </div>
+
+            <div class="dashboard-metric-card" onclick="navigateTo('clientes')" style="cursor: pointer;">
+              <div class="metric-card-icon" style="background: #EFF6FF; color: #2563EB;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="metric-card-info">
+                <span class="metric-card-label">Clientes Cadastrados</span>
+                <span class="metric-card-val">6</span>
+                <span class="metric-card-meta">5 novos neste mês</span>
+              </div>
+            </div>
+
+            <div class="dashboard-metric-card" onclick="navigateTo('lotes')" style="cursor: pointer;">
+              <div class="metric-card-icon" style="background: #FEF3E2; color: #D4831A;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              </div>
+              <div class="metric-card-info">
+                <span class="metric-card-label">Lotes Ativos</span>
+                <span class="metric-card-val">4</span>
+                <span class="metric-card-meta">Ver detalhes dos lotes &rarr;</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grade de duas colunas: Pendências e Últimas Atividades -->
+          <div class="dashboard-two-col">
+            
+            <!-- Coluna 1: Pendências e Alertas -->
+            <div class="dashboard-panel-card">
+              <div class="dashboard-panel-header">
+                <span class="dashboard-panel-title">Pendências e Atenção</span>
+                <span class="badge badge--warning">2 pendentes</span>
+              </div>
+              <div class="dashboard-alerts-list">
+                <div class="dashboard-alert-item dashboard-alert-item--warning">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div class="dashboard-alert-text">
+                    <strong>Boleto #1042 vence amanhã</strong>
+                    <div style="font-size: 11px; margin-top: 2px;">Valor de R$ 850,00 ref. fornecedores.</div>
+                  </div>
+                  <button class="dashboard-alert-btn" onclick="navigateTo('boletos')">Ver boleto</button>
+                </div>
+
+                <div class="dashboard-alert-item dashboard-alert-item--success">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div class="dashboard-alert-text">
+                    <strong>Importação do Lote 4 concluída</strong>
+                    <div style="font-size: 11px; margin-top: 2px;">Planilha CashbackDaniel.xlsx processada com êxito.</div>
+                  </div>
+                  <button class="dashboard-alert-btn" onclick="navigateTo('lotes')">Ver lote</button>
+                </div>
+
+                <div class="dashboard-alert-item dashboard-alert-item--info">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <div class="dashboard-alert-text">
+                    <strong>Nova nota fiscal #4085 emitida</strong>
+                    <div style="font-size: 11px; margin-top: 2px;">Conferência pendente para fechamento.</div>
+                  </div>
+                  <button class="dashboard-alert-btn" onclick="navigateTo('notas')">Conferir</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Últimas Movimentações -->
+            <div class="dashboard-panel-card">
+              <div class="dashboard-panel-header">
+                <span class="dashboard-panel-title">Atividades Recentes de Cashback</span>
+                <a href="#" class="dashboard-panel-action" onclick="navigateTo('lancamentos')">Ver todos &rarr;</a>
+              </div>
+              <div style="overflow-x: auto;">
+                <table class="data-table" style="font-size: 13px;">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Cliente</th>
+                      <th>Departamento</th>
+                      <th class="th-right">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="td-code">04/10/2026</td>
+                      <td><strong>ANA RODRIGUES</strong></td>
+                      <td>Consórcio</td>
+                      <td class="td-monetary">R$ 200,00</td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">04/10/2026</td>
+                      <td><strong>CARLOS MENDES</strong></td>
+                      <td>Honda Store</td>
+                      <td class="td-monetary">R$ 500,00</td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">04/10/2026</td>
+                      <td><strong>BEATRIZ COSTA</strong></td>
+                      <td>Consórcio Honda</td>
+                      <td class="td-monetary">R$ 250,00</td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">04/10/2026</td>
+                      <td><strong>PEDRO ALVES</strong></td>
+                      <td>Oficina</td>
+                      <td class="td-monetary">R$ 300,00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN DASHBOARD -->
+
+      <!-- ─── SCREEN 2: CLIENTES (Simplificada) ────────────── -->
+      <div class="screen" id="screen-clientes">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Clientes</h1>
+              <p class="page-subtitle">Gerencie os clientes e seus saldos acumulados de cashback</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn btn--primary btn--md" id="btnNovoCliente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Novo cliente
+              </button>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <!-- Barra de Filtros e Pesquisa Simples -->
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
+              <div class="table-filter-bar" style="margin-bottom: 0;">
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (6)</button>
+                <button type="button" class="filter-chip" data-filter="active">Ativos (6)</button>
+                <button type="button" class="filter-chip" data-filter="with-balance">Com Saldo</button>
+              </div>
+
+              <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+                <span class="input-search-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+                <input type="text" class="input input-search" placeholder="Pesquisar cliente ou CPF..." />
+              </div>
+            </div>
+
+            <!-- Tabela de Clientes -->
+            <div class="table-area" id="tableClientes">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lista de clientes">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:60px">Código</th>
+                      <th scope="col">Nome</th>
+                      <th scope="col">CPF</th>
+                      <th scope="col">Celular</th>
+                      <th scope="col">E-Mail</th>
+                      <th scope="col" class="th-right">Saldo Cashback</th>
+                      <th scope="col" style="width:70px; text-align:center">Situação</th>
+                      <th scope="col" class="th-right" style="width: 140px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Código" class="td-code">1</td>
+                      <td data-label="Nome"><strong>ANA RODRIGUES</strong></td>
+                      <td data-label="CPF">123.456.789-00</td>
+                      <td data-label="Celular">(11) 99999-0001</td>
+                      <td data-label="E-Mail">ana.rodrigues@email.com</td>
+                      <td data-label="Saldo" class="td-monetary">1.400,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action" onclick="showToast('Visualizando Ana Rodrigues', 'info')">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                          Ver
+                        </button>
+                        <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando Ana Rodrigues', 'info')">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Ana Rodrigues')">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">2</td>
+                      <td data-label="Nome"><strong>CARLOS MENDES</strong></td>
+                      <td data-label="CPF">987.654.321-00</td>
+                      <td data-label="Celular">(11) 99999-0002</td>
+                      <td data-label="E-Mail">carlos.mendes@email.com</td>
+                      <td data-label="Saldo" class="td-monetary">1.000,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action" onclick="showToast('Visualizando Carlos Mendes', 'info')">Ver</button>
+                        <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando Carlos Mendes', 'info')">Editar</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Carlos Mendes')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">3</td>
+                      <td data-label="Nome"><strong>BEATRIZ COSTA</strong></td>
+                      <td data-label="CPF">—</td>
+                      <td data-label="Celular">—</td>
+                      <td data-label="E-Mail">—</td>
+                      <td data-label="Saldo" class="td-monetary">500,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--edit">Editar</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Beatriz Costa')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">4</td>
+                      <td data-label="Nome"><strong>MARCOS SILVA</strong></td>
+                      <td data-label="CPF">—</td>
+                      <td data-label="Celular">—</td>
+                      <td data-label="E-Mail">—</td>
+                      <td data-label="Saldo" class="td-monetary">200,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--edit">Editar</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Marcos Silva')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">5</td>
+                      <td data-label="Nome"><strong>FERNANDA LIMA</strong></td>
+                      <td data-label="CPF">—</td>
+                      <td data-label="Celular">—</td>
+                      <td data-label="E-Mail">—</td>
+                      <td data-label="Saldo" class="td-monetary">300,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--edit">Editar</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Fernanda Lima')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">6</td>
+                      <td data-label="Nome"><strong>PEDRO ALVES</strong></td>
+                      <td data-label="CPF">—</td>
+                      <td data-label="Celular">—</td>
+                      <td data-label="E-Mail">—</td>
+                      <td data-label="Saldo" class="td-monetary">600,00</td>
+                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--edit">Editar</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Pedro Alves')">Excluir</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination">
+              <span class="page-info">Mostrando 6 de 6 clientes</span>
+              <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN CLIENTES -->
+
+      <!-- ─── SCREEN 3: LANÇAMENTOS DE CASHBACK ───────────── -->
+      <div class="screen" id="screen-lancamentos">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Lançamentos de cashback</h1>
+              <p class="page-subtitle">Registro das movimentações de cashback geradas ou utilizadas</p>
+            </div>
+            <button class="btn btn--primary btn--md" id="btnNovoLancamento">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo lançamento
+            </button>
+          </div>
+
+          <div class="content-card">
+            <!-- Barra de Filtros e Pesquisa -->
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
+              <div class="table-filter-bar" style="margin-bottom: 0;">
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (13)</button>
+                <button type="button" class="filter-chip" data-filter="disponivel">Disponível</button>
+                <button type="button" class="filter-chip" data-filter="utilizado">Utilizado</button>
+              </div>
+
+              <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+                <span class="input-search-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+                <input type="text" class="input input-search" placeholder="Pesquisar por cliente, produto..." />
+              </div>
+            </div>
+
+            <div class="table-area" id="tableLancamentos">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lançamentos de cashback">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:60px">Código</th>
+                      <th scope="col" style="width:100px">Data</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Departamento</th>
+                      <th scope="col">Produto</th>
+                      <th scope="col" class="th-right">Valor</th>
+                      <th scope="col" style="width:110px">Status</th>
+                      <th scope="col" style="width:60px; text-align:center">Lote</th>
+                      <th scope="col" class="th-right" style="width:100px">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td data-label="Código" class="td-code">13</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Consórcio</td><td data-label="Produto">Cota</td><td data-label="Valor" class="td-monetary">R$ 200,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">4</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">12</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 600,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">4</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">11</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 600,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">3</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">10</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">PEDRO ALVES</td><td data-label="Departamento">Oficina</td><td data-label="Produto">Revisão/serviços</td><td data-label="Valor" class="td-monetary">R$ 300,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">9</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">FERNANDA LIMA</td><td data-label="Departamento">Peças e Acessórios</td><td data-label="Produto">Mercadorias</td><td data-label="Valor" class="td-monetary">R$ 150,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">8</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">MARCOS SILVA</td><td data-label="Departamento">Banco Honda</td><td data-label="Produto">Contrato Financ.</td><td data-label="Valor" class="td-monetary">R$ 100,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">7</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">BEATRIZ COSTA</td><td data-label="Departamento">Consórcio Honda</td><td data-label="Produto">Cota de consórcio</td><td data-label="Valor" class="td-monetary">R$ 250,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr><td data-label="Código" class="td-code">6</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">CARLOS MENDES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 500,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info">Página 1 de 1 (13 lançamentos)</span>
+              <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN LANÇAMENTOS -->
+
+      <!-- ─── SCREEN 4: IMPORTAR PLANILHA (5 Passos) ───────── -->
+      <div class="screen" id="screen-importar">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Importar Cashback em Lote</h1>
+              <p class="page-subtitle">Siga as 5 etapas simplificadas para importar e conferir a planilha</p>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <!-- Barra de Progresso das Etapas (Stepper) -->
+            <div class="import-stepper">
+              <div class="import-step-item import-step-item--active" data-step="1">
+                <span class="import-step-circle">1</span>
+                <span>Selecionar Arquivo</span>
+              </div>
+              <span class="import-step-arrow">&rarr;</span>
+
+              <div class="import-step-item" data-step="2">
+                <span class="import-step-circle">2</span>
+                <span>Pré-visualização</span>
+              </div>
+              <span class="import-step-arrow">&rarr;</span>
+
+              <div class="import-step-item" data-step="3">
+                <span class="import-step-circle">3</span>
+                <span>Conferência de Erros</span>
+              </div>
+              <span class="import-step-arrow">&rarr;</span>
+
+              <div class="import-step-item" data-step="4">
+                <span class="import-step-circle">4</span>
+                <span>Confirmar Importação</span>
+              </div>
+              <span class="import-step-arrow">&rarr;</span>
+
+              <div class="import-step-item" data-step="5">
+                <span class="import-step-circle">5</span>
+                <span>Resultado</span>
+              </div>
+            </div>
+
+            <div class="import-form-body">
+              
+              <!-- ETAPA 1: Selecionar Arquivo -->
+              <div id="importStep1">
+                <div class="import-instruction-box" style="margin-bottom: 20px;">
+                  <div class="import-instruction-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <div class="import-instruction-text">
+                    Formatos compatíveis com cashback: <strong>Excel (.xlsx, .xls)</strong> e <strong>Texto delimitado (.csv)</strong>.
+                    <span class="import-col-list">Estrutura recomendada: CPF · Nome · Valor de Cashback · Departamento · Produto · Celular</span>
+                  </div>
+                </div>
+
+                <!-- Dropzone de Seleção -->
+                <div class="import-dropzone" id="importDropzone" tabindex="0" role="button" aria-label="Área de seleção ou upload de arquivo">
+                  <div class="dropzone-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                  </div>
+                  <div>
+                    <strong style="font-size: 15px; color: var(--color-text-primary);">Clique para escolher ou arraste o arquivo do seu computador</strong>
+                    <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 4px;">O sistema identificará o formato e verificará a compatibilidade para importação</p>
+                  </div>
+                  <input type="file" id="importFileInput" class="sr-only" />
+                  <button type="button" class="btn btn--primary btn--md" style="margin-top: 8px;" onclick="document.getElementById('importFileInput').click()">
+                    Escolher arquivo do computador
+                  </button>
+                </div>
+
+                <!-- Card com Detalhes do Arquivo Selecionado (Renderizado dinamicamente) -->
+                <div id="selectedFileInfoWrap" style="display: none;"></div>
+
+                <!-- Alerta Amigável para Formatos Incompatíveis -->
+                <div id="incompatibleFileAlert" style="display: none;"></div>
+
+                <!-- Ações da Etapa 1 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 12px;">
+                  <button type="button" class="btn btn--secondary btn--sm" id="btnLoadSampleFile">
+                    Carregar planilha de exemplo (teste demonstrativo)
+                  </button>
+                  <button type="button" class="btn btn--primary btn--md" id="btnStep1Next" style="display: none;">
+                    Avançar para pré-visualização &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- ETAPA 2: Pré-visualização dos Dados -->
+              <div id="importStep2" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                  <div>
+                    <strong>Arquivo selecionado:</strong> <span id="previewFileName" style="color: var(--brand-main); font-weight: 700;">Cashback_Clientes_Outubro.xlsx</span>
+                  </div>
+                  <button type="button" class="btn btn--ghost btn--sm" id="btnStep2Back">Trocar arquivo</button>
+                </div>
+
+                <div class="table-wrapper" style="border: 1px solid var(--color-border); border-radius: 8px;">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Linha</th>
+                        <th>CPF</th>
+                        <th>Nome</th>
+                        <th class="th-right">Cashback</th>
+                        <th>Departamento</th>
+                        <th>Produto</th>
+                        <th>Celular</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td class="td-code">1</td><td>123.456.789-00</td><td>ANA RODRIGUES</td><td class="td-monetary">200,00</td><td>Consórcio</td><td>Cota</td><td>(11) 99999-0001</td></tr>
+                      <tr><td class="td-code">2</td><td>987.654.321-00</td><td>CARLOS MENDES</td><td class="td-monetary">500,00</td><td>Honda Store</td><td>Capacete</td><td>(11) 99999-0002</td></tr>
+                      <tr><td class="td-code">3</td><td>555.444.333-22</td><td>BEATRIZ COSTA</td><td class="td-monetary">250,00</td><td>Consórcio</td><td>Cota</td><td>(11) 99999-0003</td></tr>
+                      <tr><td class="td-code">4</td><td>111.222.333-44</td><td>MARCOS SILVA</td><td class="td-monetary">100,00</td><td>Banco Honda</td><td>Financ.</td><td>(11) 99999-0004</td></tr>
+                      <tr><td class="td-code">5</td><td>999.888.777-66</td><td>FERNANDA LIMA</td><td class="td-monetary">150,00</td><td>Peças</td><td>Acessórios</td><td>(11) 99999-0005</td></tr>
+                      <tr><td class="td-code">6</td><td>000.111.222-33</td><td>JOÃO SOUZA</td><td class="td-monetary">300,00</td><td>Oficina</td><td>Revisão</td><td style="color:#C0392B; font-weight:bold;">(Inválido)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px;">
+                  <button type="button" class="btn btn--primary btn--md" id="btnStep2To3">
+                    Avançar para conferência &rarr;
+                  </button>
+                </div>
+              </div>
+
+              <!-- ETAPA 3: Conferência de Erros e Validação -->
+              <div id="importStep3" style="display: none;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                  <div style="padding: 16px; border-radius: 10px; background: #E8F4EC; border: 1px solid #B5D9C4;">
+                    <div style="font-size: 11px; font-weight: 700; color: #1E503B; text-transform: uppercase;">Registros Válidos</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #348563; margin-top: 4px;">5 linhas</div>
+                    <div style="font-size: 12px; color: #1E503B; margin-top: 2px;">Prontos para inclusão imediata</div>
+                  </div>
+
+                  <div style="padding: 16px; border-radius: 10px; background: #FEF3E2; border: 1px solid #F5C07A;">
+                    <div style="font-size: 11px; font-weight: 700; color: #92560A; text-transform: uppercase;">Pendências Detectadas</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #D4831A; margin-top: 4px;">1 linha com aviso</div>
+                    <div style="font-size: 12px; color: #92560A; margin-top: 2px;">Celular fora do padrão (será cadastrado sem fone)</div>
+                  </div>
+                </div>
+
+                <div class="alert alert--warning" style="margin-bottom: 16px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div>
+                    <strong>Linha 6 (João Souza):</strong> O telefone está incompleto. O cliente será cadastrado normalmente e o telefone poderá ser corrigido posteriormente.
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                  <button type="button" class="btn btn--ghost btn--md" id="btnStep3Back">&larr; Voltar para pré-visualização</button>
+                  <button type="button" class="btn btn--primary btn--md" id="btnStep3To4">Avançar para confirmação &rarr;</button>
+                </div>
+              </div>
+
+              <!-- ETAPA 4: Confirmação da Importação -->
+              <div id="importStep4" style="display: none; text-align: center; padding: 24px 0;">
+                <div style="max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                  <div style="width: 56px; height: 56px; border-radius: 50%; background: #E8F4EC; color: #348563; display: flex; align-items: center; justify-content: center;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  </div>
+
+                  <h3 style="font-size: 18px; font-weight: 800; color: var(--color-text-primary);">Confirmar geração do lote</h3>
+                  <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.5;">
+                    Você está prestes a importar <strong>6 lançamentos</strong> totalizando <strong>R$ 1.500,00</strong> de cashback para a <strong>EMPRESA PADRÃO</strong>.
+                  </p>
+
+                  <div style="display: flex; gap: 12px; margin-top: 14px;">
+                    <button type="button" class="btn btn--ghost btn--md" id="btnStep4Back">Voltar</button>
+                    <button type="button" class="btn btn--primary btn--lg" id="btnConfirmImportSubmit">
+                      Confirmar e Importar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ETAPA 5: Sucesso e Conclusão -->
+              <div id="importStep5" style="display: none; text-align: center; padding: 32px 0;">
+                <div style="max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                  <div style="width: 64px; height: 64px; border-radius: 50%; background: #E8F4EC; color: #348563; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(52, 133, 99, 0.25);">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+
+                  <h3 style="font-size: 20px; font-weight: 800; color: var(--brand-dark);">Importação concluída com sucesso!</h3>
+                  <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.5;">
+                    O lote foi registrado e os lançamentos já estão ativos para consulta pelos clientes.
+                  </p>
+
+                  <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <button type="button" class="btn btn--secondary btn--md" id="btnRestartImport">Importar outra planilha</button>
+                    <button type="button" class="btn btn--primary btn--md" onclick="navigateTo('lotes')">Ver Lotes de Cashback &rarr;</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN IMPORTAR -->
+
+      <!-- ─── SCREEN 5: BOLETOS (Novo em GESTÃO) ───────────── -->
+      <div class="screen" id="screen-boletos">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Boletos</h1>
+              <p class="page-subtitle">Gestão de cobranças, vencimentos e conciliação bancária</p>
+            </div>
+            <button class="btn btn--primary btn--md" onclick="showToast('Abrindo emissão de boleto...', 'info')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo boleto
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
+              <div class="table-filter-bar" style="margin-bottom: 0;">
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (3)</button>
+                <button type="button" class="filter-chip" data-filter="pendente">Pendentes</button>
+                <button type="button" class="filter-chip" data-filter="active">Pagos</button>
+              </div>
+
+              <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+                <span class="input-search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                <input type="text" class="input input-search" placeholder="Pesquisar boletos..." />
+              </div>
+            </div>
+
+            <div class="table-area">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lista de boletos">
+                  <thead>
+                    <tr>
+                      <th style="width: 70px;">Número</th>
+                      <th>Vencimento</th>
+                      <th>Sacado / Fornecedor</th>
+                      <th class="th-right">Valor</th>
+                      <th style="width: 120px;">Situação</th>
+                      <th class="th-right" style="width: 140px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="td-code">#1042</td>
+                      <td>14/10/2026</td>
+                      <td><strong>SERVIÇOS DE TECNOLOGIA LTDA</strong></td>
+                      <td class="td-monetary">R$ 850,00</td>
+                      <td><span class="badge badge--warning">PENDENTE</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="showToast('Visualizando boleto #1042', 'info')">Ver</button>
+                        <button class="btn-table-action" onclick="showToast('Baixando PDF do boleto #1042', 'success')">PDF</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">#1041</td>
+                      <td>28/09/2026</td>
+                      <td><strong>DMX MARKETING ASSESSORIA</strong></td>
+                      <td class="td-monetary">R$ 1.200,00</td>
+                      <td><span class="badge badge--success">PAGO</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action">PDF</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">#1040</td>
+                      <td>15/09/2026</td>
+                      <td><strong>GRAFICA & IMPRESSOES EIRELI</strong></td>
+                      <td class="td-monetary">R$ 430,00</td>
+                      <td><span class="badge badge--success">PAGO</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action">PDF</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info">Página 1 de 1 (3 boletos)</span>
+              <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN BOLETOS -->
+
+      <!-- ─── SCREEN 6: NOTAS (Novo em GESTÃO) ─────────────── -->
+      <div class="screen" id="screen-notas">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Notas Fiscais</h1>
+              <p class="page-subtitle">Acompanhamento e conferência fiscal dos lançamentos</p>
+            </div>
+            <button class="btn btn--primary btn--md" onclick="showToast('Conferindo notas fiscais...', 'info')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Conferir notas
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
+              <div class="table-filter-bar" style="margin-bottom: 0;">
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todas (3)</button>
+                <button type="button" class="filter-chip" data-filter="pendente">Pendentes</button>
+                <button type="button" class="filter-chip" data-filter="active">Conferidas</button>
+              </div>
+
+              <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+                <span class="input-search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                <input type="text" class="input input-search" placeholder="Pesquisar nota ou emitente..." />
+              </div>
+            </div>
+
+            <div class="table-area">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lista de notas fiscais">
+                  <thead>
+                    <tr>
+                      <th style="width: 80px;">Número NF</th>
+                      <th>Emissão</th>
+                      <th>Emitente / Razão Social</th>
+                      <th class="th-right">Valor Total</th>
+                      <th style="width: 120px;">Status</th>
+                      <th class="th-right" style="width: 140px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="td-code">NF-e 4085</td>
+                      <td>04/10/2026</td>
+                      <td><strong>CONCESSIONÁRIA HONDA SÃO PAULO</strong></td>
+                      <td class="td-monetary">R$ 2.450,00</td>
+                      <td><span class="badge badge--warning">PENDENTE</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="showToast('Visualizando NF-e 4085', 'info')">Ver</button>
+                        <button class="btn-table-action" onclick="showToast('Baixando XML da NF-e', 'success')">XML</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">NF-e 4084</td>
+                      <td>03/10/2026</td>
+                      <td><strong>HONDA STORE BOUTIQUE EIRELI</strong></td>
+                      <td class="td-monetary">R$ 1.800,00</td>
+                      <td><span class="badge badge--success">CONFERIDA</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action">XML</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">NF-e 4083</td>
+                      <td>01/10/2026</td>
+                      <td><strong>BANCO HONDA SA</strong></td>
+                      <td class="td-monetary">R$ 950,00</td>
+                      <td><span class="badge badge--success">CONFERIDA</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action">XML</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info">Página 1 de 1 (3 notas)</span>
+              <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN NOTAS -->
+
+      <!-- ─── SCREEN 7: LOTES (Tela Dedicada com Cards Destacados) -->
+      <div class="screen" id="screen-lotes">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Lotes de Importação</h1>
+              <p class="page-subtitle">4 lote(s) &nbsp;·&nbsp; R$&nbsp;3.800,00 importado(s) &nbsp;·&nbsp; 5 cliente(s) novo(s)</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn--secondary btn--md" onclick="navigateTo('importar')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+                Importar Novo Lote
+              </button>
+              <button class="btn btn--primary btn--md" data-action="refresh">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Atualizar
+              </button>
+            </div>
+          </div>
+
+          <!-- Cards de Lote com visual destacado e fundo verde suave -->
+          <div class="lot-cards-grid">
+
+            <!-- Lote 4 -->
+            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
+              <div class="lot-card-header">
+                <div>
+                  <div class="lot-card-number">Lote 4</div>
+                  <div class="lot-card-file">CashbackDaniel.xlsx · EMPRESA</div>
+                </div>
+                <span class="lot-card-date">04/10/2026 19:59</span>
+              </div>
+              <div class="lot-card-body">
+                <div class="lot-card-value">R$&nbsp;600,00</div>
+                <div class="lot-card-meta">1 de 1 lançamento(s)</div>
+                <div class="lot-card-progress-wrap">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                  </div>
+                  <div class="lot-card-progress-labels">
+                    <span>Utilizado R$&nbsp;0,00</span>
+                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;600,00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lote 3 -->
+            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
+              <div class="lot-card-header">
+                <div>
+                  <div class="lot-card-number">Lote 3</div>
+                  <div class="lot-card-file">CashbackDaniel.xlsx · EMPRESA</div>
+                </div>
+                <span class="lot-card-date">04/10/2026 19:53</span>
+              </div>
+              <div class="lot-card-body">
+                <div class="lot-card-value">R$&nbsp;600,00</div>
+                <div class="lot-card-meta">1 de 1 lançamento(s)</div>
+                <div class="lot-card-progress-wrap">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                  </div>
+                  <div class="lot-card-progress-labels">
+                    <span>Utilizado R$&nbsp;0,00</span>
+                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;600,00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lote 2 -->
+            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
+              <div class="lot-card-header">
+                <div>
+                  <div class="lot-card-number">Lote 2</div>
+                  <div class="lot-card-file">Cashback.xlsx · EMPRESA</div>
+                </div>
+                <span class="lot-card-date">04/10/2026 19:49</span>
+              </div>
+              <div class="lot-card-body">
+                <div class="lot-card-value">R$&nbsp;1.300,00</div>
+                <div class="lot-card-meta">5 de 5 lançamento(s)</div>
+                <div class="lot-card-progress-wrap">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                  </div>
+                  <div class="lot-card-progress-labels">
+                    <span>Utilizado R$&nbsp;0,00</span>
+                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;1.300,00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lote 1 -->
+            <div class="lot-card lot-card--highlight" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
+              <div class="lot-card-header">
+                <div>
+                  <div class="lot-card-number">Lote 1</div>
+                  <div class="lot-card-file">Cashback.xlsx · EMPRESA</div>
+                </div>
+                <span class="lot-card-date">04/10/2026 19:45</span>
+              </div>
+              <div class="lot-card-body">
+                <div class="lot-card-value">R$&nbsp;1.300,00</div>
+                <div class="lot-card-meta">
+                  5 de 5 lançamento(s) &nbsp;·&nbsp;
+                  <span class="badge badge--new-clients">5 cliente(s) novo(s)</span>
+                </div>
+                <div class="lot-card-progress-wrap">
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                  </div>
+                  <div class="lot-card-progress-labels">
+                    <span>Utilizado R$&nbsp;0,00</span>
+                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;1.300,00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN LOTES -->
+
+      <!-- ─── SCREEN: CONSULTA DE REGISTROS (Gestão) ────────── -->
+      <div class="screen" id="screen-consulta-registros">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Consulta de Registros</h1>
+              <p class="page-subtitle">Localize rapidamente boletos, notas e lotes registrados no sistema em um só lugar</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn--secondary btn--md" onclick="exportRecordsReport()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Exportar Consulta
+              </button>
+              <button class="btn btn--primary btn--md" onclick="resetRecordFilters()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                Atualizar
+              </button>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <!-- Barra de Filtros Unificada -->
+            <div class="record-filter-bar">
+              <div class="record-chips">
+                <button type="button" class="record-chip record-chip--active" data-record-type="all">Todos os Registros (<span id="countRecAll">12</span>)</button>
+                <button type="button" class="record-chip" data-record-type="boleto">Boletos (<span id="countRecBoletos">4</span>)</button>
+                <button type="button" class="record-chip" data-record-type="nota">Notas (<span id="countRecNotas">4</span>)</button>
+                <button type="button" class="record-chip" data-record-type="lote">Lotes (<span id="countRecLotes">4</span>)</button>
+              </div>
+
+              <div class="record-inputs-row">
+                <div style="flex: 1; min-width: 260px; position: relative;">
+                  <div class="input-search-wrap">
+                    <span class="input-search-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <input type="text" class="input input-search" id="inputSearchRecords" placeholder="Pesquisar por identificador, empresa, cliente, valor..." />
+                  </div>
+                </div>
+
+                <div style="min-width: 170px;">
+                  <select class="input" id="filterRecordStatus" style="cursor: pointer;">
+                    <option value="all">Todos os Status</option>
+                    <option value="Liquidado">Liquidado / Concluído</option>
+                    <option value="Aberto">Aberto / Pendente</option>
+                    <option value="Conciliado">Conciliado</option>
+                    <option value="Vencido">Vencido</option>
+                  </select>
+                </div>
+
+                <button type="button" class="btn btn--ghost btn--sm" id="btnResetRecordFilters" onclick="resetRecordFilters()">
+                  Limpar Filtros
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabela de Resultados -->
+            <div class="table-area">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Tabela de consulta de registros">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 140px;">Identificador</th>
+                      <th scope="col" style="width: 110px;">Tipo</th>
+                      <th scope="col">Empresa / Favorecido</th>
+                      <th scope="col" style="width: 130px;">Data Emissão</th>
+                      <th scope="col" class="th-right" style="width: 130px;">Valor</th>
+                      <th scope="col" style="width: 120px;">Status</th>
+                      <th scope="col" class="th-right" style="width: 130px;">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recordsTableBody">
+                    <!-- Registros populados dinamicamente por JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Estado Vazio Amigável -->
+            <div id="recordEmptyState" class="empty-state" style="display: none; padding: 48px 24px;">
+              <div class="empty-state-icon" style="width: 56px; height: 56px; border-radius: 50%; background: #FDECEA; color: #C0392B; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h3 class="empty-state-title" style="font-size: 16px; font-weight: 700;">Nenhum registro encontrado</h3>
+              <p class="empty-state-desc" style="font-size: 13px; color: var(--color-text-secondary); max-width: 420px; margin: 4px auto 16px;">
+                Verifique os dados informados e tente novamente.
+              </p>
+              <button class="btn btn--secondary btn--sm" onclick="resetRecordFilters()">Limpar busca e filtros</button>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info" id="recordsPageInfo">Exibindo registros encontrados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN CONSULTA DE REGISTROS -->
+
+      <!-- ─── SCREEN 8: EMPRESAS ───────────────────────────── -->
+      <div class="screen" id="screen-empresas">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Empresas</h1>
+              <p class="page-subtitle">3 empresas cadastradas no sistema</p>
+            </div>
+            <button class="btn btn--primary btn--md" id="btnNovaEmpresa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova empresa
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: flex-end; background: #FAFCFA;">
+              <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+                <span class="input-search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                <input type="text" class="input input-search" placeholder="Pesquisar empresa..." />
+              </div>
+            </div>
+
+            <div class="table-area" id="tableEmpresas">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lista de empresas">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:60px">Código</th>
+                      <th scope="col">Fantasia</th>
+                      <th scope="col">Fone</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">CEP</th>
+                      <th scope="col">Endereço</th>
+                      <th scope="col" style="width:50px; text-align:center">Nº</th>
+                      <th scope="col">Cidade</th>
+                      <th scope="col" style="width:40px">UF</th>
+                      <th scope="col" class="th-right" style="width:120px">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-label="Código" class="td-code">3</td>
+                      <td data-label="Fantasia"><strong>DMX MARKETING</strong></td>
+                      <td data-label="Fone">11975-1942</td>
+                      <td data-label="Email">contato@dmxmarketing.com</td>
+                      <td data-label="CEP">03949-000</td>
+                      <td data-label="Endereço">AV PAULISTA</td>
+                      <td data-label="Nº" class="td-center">726</td>
+                      <td data-label="Cidade">SÃO PAULO</td>
+                      <td data-label="UF">SP</td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action" onclick="showToast('Visualizando DMX MARKETING', 'info')">Ver</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'DMX MARKETING')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">2</td>
+                      <td data-label="Fantasia"><strong>ONLY TEST: DO NOT USE!</strong></td>
+                      <td data-label="Fone">—</td>
+                      <td data-label="Email">—</td>
+                      <td data-label="CEP">—</td>
+                      <td data-label="Endereço">—</td>
+                      <td data-label="Nº" class="td-center">—</td>
+                      <td data-label="Cidade">FORTALEZA</td>
+                      <td data-label="UF">CE</td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'ONLY TEST')">Excluir</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td data-label="Código" class="td-code">1</td>
+                      <td data-label="Fantasia"><strong>EMPRESA PADRÃO</strong></td>
+                      <td data-label="Fone">99862-1405</td>
+                      <td data-label="Email">contato@empresapadrao.com</td>
+                      <td data-label="CEP">—</td>
+                      <td data-label="Endereço">—</td>
+                      <td data-label="Nº" class="td-center">12</td>
+                      <td data-label="Cidade">FORTALEZA</td>
+                      <td data-label="UF">CE</td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action">Ver</button>
+                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'EMPRESA PADRÃO')">Excluir</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info">Página 1 de 1 (3 empresas)</span>
+              <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN EMPRESAS -->
+
+      <!-- ─── SCREEN 9: USUÁRIOS ───────────────────────────── -->
+      <div class="screen" id="screen-usuarios">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">USUÁRIOS</h1>
+              <p class="page-subtitle">Controle de acessos e permissões administrativas</p>
+            </div>
+            <button class="btn btn--primary btn--md" onclick="showToast('Adicionar usuário...', 'info')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo usuário
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div class="table-area" id="tableUsuarios">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Lista de usuários">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width:60px">Código</th>
+                      <th scope="col" style="width:100px">Status</th>
+                      <th scope="col">Nome</th>
+                      <th scope="col">Login</th>
+                      <th scope="col" class="th-right" style="width: 100px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="row--selected">
+                      <td data-label="Código" class="td-code">2</td>
+                      <td data-label="Status"><span class="badge badge--success">active</span></td>
+                      <td data-label="Nome"><strong>LEME</strong> (Você)</td>
+                      <td data-label="Login">leme@lemesys.com</td>
+                      <td data-label="Ações" class="td-right">
+                        <button class="btn-table-action" onclick="openModal('modalSettings')">Editar</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="pagination">
+              <span class="page-info">1 usuário ativo</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /SCREEN USUÁRIOS -->
+
+      <!-- ─── SCREEN: COMUNICAÇÃO E E-MAILS (Admin) ────────── -->
+      <div class="screen admin-only" id="screen-comunicacao">
+        <div class="page-content">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Comunicação e E-mails</h1>
+              <p class="page-subtitle">Configurações institucionais de disparo e modelos visuais de cashback</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn--secondary btn--md" id="btnTestEmailModal" onclick="openEmailTestModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Testar Envio
+              </button>
+              <button class="btn btn--primary btn--md" onclick="saveEmailConfig()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar Configurações
+              </button>
+            </div>
+          </div>
+
+          <!-- Banner Informativo de Boas Práticas e Segurança -->
+          <div class="alert alert--info" style="margin-bottom: 20px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <div style="font-size: 13px; line-height: 1.5;">
+              <strong>Ambiente de Configuração Administrativa:</strong> As credenciais SMTP e chaves de API devem ser configuradas com segurança no microserviço backend em Java. O sistema nunca armazena senhas em arquivos de interface pública. O endereço oficial de e-mail será configurado após sua criação institucional.
+            </div>
+          </div>
+
+          <!-- Card 1: Configuração do E-mail Institucional -->
+          <div class="content-card" style="margin-bottom: 24px;">
+            <div style="padding: 18px 24px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--color-text-primary);">Configurações de Envio Institucional</h3>
+                <p style="font-size: 13px; color: var(--color-text-secondary); margin-top: 2px;">Defina os dados oficiais de remetente para disparos transacionais</p>
+              </div>
+              <span class="badge badge--warning" id="emailConfigStatusBadge">Não configurado</span>
+            </div>
+
+            <div style="padding: 24px;">
+              <form id="formEmailConfig" onsubmit="event.preventDefault(); saveEmailConfig();">
+                <div class="form-grid-2" style="margin-bottom: 16px;">
+                  <div class="input-group">
+                    <label class="input-label" for="cfgSenderEmail">E-mail institucional de envio <span class="required-mark">*</span></label>
+                    <input type="email" id="cfgSenderEmail" class="input" placeholder="contato@empresa.com.br" />
+                    <span class="input-hint">Endereço institucional que será configurado pelo administrador. O backend Java realizará os envios via serviço de mensageria.</span>
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="cfgSenderName">Nome do remetente <span class="required-mark">*</span></label>
+                    <input type="text" id="cfgSenderName" class="input" value="DMX CashBack" required />
+                    <span class="input-hint">Nome exibido na caixa de entrada do cliente (ex: DMX CashBack).</span>
+                  </div>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom: 20px;">
+                  <div class="input-group">
+                    <label class="input-label" for="cfgAdminEmail">E-mail para alertas administrativos</label>
+                    <input type="email" id="cfgAdminEmail" class="input" placeholder="admin@empresa.com.br" />
+                    <span class="input-hint">Receberá relatórios de falhas de envio e importações.</span>
+                  </div>
+
+                  <div class="input-group">
+                    <label class="input-label" for="cfgEmailProvider">Serviço de envio utilizado</label>
+                    <select id="cfgEmailProvider" class="input" style="cursor: pointer;">
+                      <option value="">Selecione um provedor de mensageria...</option>
+                      <option value="ses">Amazon SES (Recomendado)</option>
+                      <option value="sendgrid">SendGrid (Twilio)</option>
+                      <option value="smtp">SMTP Corporativo Próprio</option>
+                      <option value="mailgun">Mailgun API</option>
+                    </select>
+                    <span class="input-hint">O microserviço Java orquestrará o envio com as credenciais seguras no servidor.</span>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                  <button type="button" class="btn btn--secondary btn--sm" onclick="resetEmailConfigForm()">Restaurar</button>
+                  <button type="submit" class="btn btn--primary btn--sm">Salvar Parâmetros</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Card 2: Modelos Visuais de E-mails Automáticos -->
+          <div class="content-card" style="margin-bottom: 24px;">
+            <div style="padding: 18px 24px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--color-text-primary);">Modelos Visuais de Comunicação por E-mail</h3>
+                <p style="font-size: 13px; color: var(--color-text-secondary); margin-top: 2px;">Prévia dos 4 e-mails automáticos transacionais oficiais disparados aos clientes</p>
+              </div>
+
+              <!-- Tabs para alternar visualização dos 4 modelos -->
+              <div style="display: flex; gap: 6px; background: var(--neutral-100); padding: 4px; border-radius: var(--radius-md); flex-wrap: wrap;">
+                <button type="button" class="btn btn--sm btn--primary" id="btnTplCredito" onclick="switchEmailTemplate('credito')">1. Cashback Recebido</button>
+                <button type="button" class="btn btn--sm btn--ghost" id="btnTplAtivacao" onclick="switchEmailTemplate('ativacao')">2. Convite & Ativação</button>
+                <button type="button" class="btn btn--sm btn--ghost" id="btnTplSaldo" onclick="switchEmailTemplate('saldo')">3. Atualização de Saldo</button>
+                <button type="button" class="btn btn--sm btn--ghost" id="btnTplVencimento" onclick="switchEmailTemplate('vencimento')">4. Aviso de Vencimento</button>
+              </div>
+            </div>
+
+            <div style="padding: 24px; background: var(--neutral-50);">
+              
+              <!-- Modelo 1: Cashback Recebido -->
+              <div id="emailPreviewCredito" class="email-preview-container">
+                <div class="email-preview-header">
+                  <div class="email-preview-header-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    DMX CashBack
+                  </div>
+                  <div class="email-preview-header-subject">Assunto: DMX CashBack | Novo crédito de cashback registrado para você!</div>
+                </div>
+
+                <div class="email-preview-body">
+                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
+                  <p style="margin-bottom: 14px;">Temos uma ótima notícia! Um novo crédito de cashback foi registrado com sucesso em sua conta na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  
+                  <div class="email-preview-highlight-box">
+                    <div style="font-size: 12px; text-transform: uppercase; color: var(--brand-dark); font-weight: 700; margin-bottom: 4px;">Detalhes do Crédito</div>
+                    <div style="font-size: 26px; font-weight: 800; color: var(--brand-main); margin-bottom: 6px;">+ R$ 45,00</div>
+                    <div style="font-size: 13px; color: var(--neutral-700); line-height: 1.5;">
+                      <strong>Data do Registro:</strong> 13/10/2026 às 14:15<br />
+                      <strong>Origem da Compra:</strong> Cupom Fiscal #77841<br />
+                      <strong>Condições de Uso:</strong> Válido para abatimento em compras futuras na loja participante.
+                    </div>
+                  </div>
+
+                  <p style="margin-bottom: 12px;">Seu saldo acumulado já pode ser utilizado como desconto em suas próximas compras no caixa.</p>
+                  <p style="margin-bottom: 16px;">Para consultar seu saldo atualizado e gerar seu código de resgate, acesse a Área do Cliente:</p>
+
+                  <a href="cliente.html" class="email-preview-btn" target="_blank">Acessar Área do Cliente DMX CashBack</a>
+                </div>
+
+                <div class="email-preview-footer">
+                  <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
+                  Este é um e-mail transacional automático. Por gentileza, não responda diretamente a esta mensagem.<br />
+                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                </div>
+              </div>
+
+              <!-- Modelo 2: Convite e Ativação da Conta -->
+              <div id="emailPreviewAtivacao" class="email-preview-container" style="display: none;">
+                <div class="email-preview-header">
+                  <div class="email-preview-header-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    DMX CashBack
+                  </div>
+                  <div class="email-preview-header-subject">Assunto: DMX CashBack | Ativação da sua conta de cashback</div>
+                </div>
+
+                <div class="email-preview-body">
+                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
+                  <p style="margin-bottom: 14px;">Você acaba de receber acesso exclusivo ao <strong>DMX CashBack</strong> através da sua compra na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  
+                  <div class="email-preview-highlight-box" style="background: #E8F4EC; border-left-color: var(--brand-main);">
+                    <div style="font-size: 12px; text-transform: uppercase; color: var(--brand-dark); font-weight: 700; margin-bottom: 4px;">Instruções de Acesso Seguro</div>
+                    <p style="font-size: 13px; color: var(--neutral-700); line-height: 1.5; margin: 0;">
+                      Na versão do cliente, você pode acompanhar seu saldo, visualizar o extrato completo e gerar o código de autorização para abater valores diretamente no caixa.
+                    </p>
+                  </div>
+
+                  <p style="margin-bottom: 12px;">Para ativar seu acesso e cadastrar sua senha pessoal com total segurança, clique no botão abaixo:</p>
+
+                  <a href="cliente.html" class="email-preview-btn" target="_blank">Ativar Minha Conta e Criar Senha</a>
+
+                  <p style="margin-top: 14px; font-size: 12px; color: var(--color-text-secondary);">
+                    <em>* Por motivos de segurança, este link de ativação é individual e intransferível.</em>
+                  </p>
+                </div>
+
+                <div class="email-preview-footer">
+                  <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
+                  Mensagem de ativação de conta. Em caso de dúvidas, consulte nossa equipe de atendimento.<br />
+                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                </div>
+              </div>
+
+              <!-- Modelo 3: Atualizações do Cashback / Movimentação -->
+              <div id="emailPreviewSaldo" class="email-preview-container" style="display: none;">
+                <div class="email-preview-header">
+                  <div class="email-preview-header-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    DMX CashBack
+                  </div>
+                  <div class="email-preview-header-subject">Assunto: DMX CashBack | Atualização de movimentação do seu saldo</div>
+                </div>
+
+                <div class="email-preview-body">
+                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
+                  <p style="margin-bottom: 14px;">Registramos uma nova movimentação em seu saldo de cashback na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  
+                  <div class="email-preview-highlight-box" style="background: #FEF3E2; border-left-color: #D4831A;">
+                    <div style="font-size: 12px; text-transform: uppercase; color: #92560A; font-weight: 700; margin-bottom: 4px;">Resumo da Movimentação</div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                      <div>
+                        <div style="font-size: 11px; color: var(--neutral-600);">Operação Realizada:</div>
+                        <div style="font-size: 18px; font-weight: 700; color: #C0392B;">- R$ 30,00 (Resgate no Caixa)</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 11px; color: var(--neutral-600);">Novo Saldo Disponível:</div>
+                        <div style="font-size: 24px; font-weight: 800; color: var(--brand-main);">R$ 85,00</div>
+                      </div>
+                    </div>
+                    <div style="font-size: 12px; color: var(--neutral-700); border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px;">
+                      <strong>Data da Movimentação:</strong> 10/10/2026 às 16:40 · Terminal Loja Centro
+                    </div>
+                  </div>
+
+                  <p style="margin-bottom: 12px;">Seu saldo remanescente já está disponível para futuros abatimentos em produtos e condições especiais.</p>
+                  <p style="margin-bottom: 16px; font-size: 13px; color: var(--color-text-secondary);">
+                    <em>Lembrete: Você pode consultar seu extrato detalhado a qualquer momento acessando a plataforma oficial pelo computador ou celular.</em>
+                  </p>
+
+                  <a href="cliente.html" class="email-preview-btn" target="_blank">Ver Extrato Completo na Plataforma</a>
+                </div>
+
+                <div class="email-preview-footer">
+                  <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
+                  Mensagem institucional confidencial e intransferível. Prevenção ativa contra disparos duplicados.<br />
+                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                </div>
+              </div>
+
+              <!-- Modelo 4: Aviso Preventivo de Vencimento -->
+              <div id="emailPreviewVencimento" class="email-preview-container" style="display: none;">
+                <div class="email-preview-header">
+                  <div class="email-preview-header-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    DMX CashBack
+                  </div>
+                  <div class="email-preview-header-subject">Assunto: DMX CashBack | Lembrete: Seu cashback está próximo do vencimento</div>
+                </div>
+
+                <div class="email-preview-body">
+                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
+                  <p style="margin-bottom: 14px;">Identificamos créditos de cashback em sua conta que estão próximos da data limite de expiração:</p>
+                  
+                  <div class="email-preview-highlight-box" style="background: #FFFDF5; border-left-color: #F59E0B;">
+                    <div style="font-size: 12px; text-transform: uppercase; color: #B45309; font-weight: 700; margin-bottom: 4px;">Saldo Próximo do Vencimento</div>
+                    <div style="font-size: 26px; font-weight: 800; color: #D97706; margin-bottom: 6px;">R$ 15,00</div>
+                    <div style="font-size: 13px; color: var(--neutral-700); line-height: 1.5;">
+                      <strong>Data Limite Registrada no Sistema:</strong> 28/10/2026<br />
+                      <strong>Estabelecimento:</strong> Farmácia Vida & Saúde<br />
+                      <strong>Ação recomendada:</strong> Realize uma compra na loja parceira antes da data limite para aproveitar o desconto.
+                    </div>
+                  </div>
+
+                  <p style="margin-bottom: 12px;">Não perca seu benefício acumulado! Para utilizar, basta apresentar seu código de resgate no caixa antes do fechamento da compra.</p>
+                  <p style="margin-bottom: 16px;">Clique no botão abaixo para verificar onde e como utilizar seu saldo:</p>
+
+                  <a href="cliente.html" class="email-preview-btn" target="_blank">Consultar Saldo a Expirar</a>
+                </div>
+
+                <div class="email-preview-footer">
+                  <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
+                  Aviso preventivo automático de validade de créditos emitidos conforme o regulamento da campanha.<br />
+                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Card 3: Fila e Histórico Demonstrativo de Envios -->
+          <div class="content-card">
+            <div style="padding: 18px 24px; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--color-text-primary);">Fila e Histórico de Disparos de E-mail</h3>
+                <p style="font-size: 13px; color: var(--color-text-secondary); margin-top: 2px;">Controle de entregas, reenvios automáticos e prevenção de duplicidades</p>
+              </div>
+              <button class="btn btn--secondary btn--sm" onclick="showToast('Sincronizando fila de e-mails...', 'info')">
+                Atualizar Fila
+              </button>
+            </div>
+
+            <div class="table-area">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Fila de envios de e-mail">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 100px;">ID Envio</th>
+                      <th scope="col">Destinatário</th>
+                      <th scope="col">Modelo / Assunto</th>
+                      <th scope="col" style="width: 140px;">Data / Hora</th>
+                      <th scope="col" style="width: 120px;">Status</th>
+                      <th scope="col" class="th-right" style="width: 150px;">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="td-code">#EML-9821</td>
+                      <td><strong>Roberto Carlos</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">roberto.carlos@email.com</span></td>
+                      <td>Crédito de Cashback (R$ 45,00)</td>
+                      <td>13/10/2026 14:15</td>
+                      <td><span class="badge badge--success">Enviado</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="viewEmailInQueue('EML-9821')">Ver E-mail</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">#EML-9822</td>
+                      <td><strong>Juliana Mendes</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">juliana.mendes@email.com</span></td>
+                      <td>Atualização do Saldo (R$ 80,00)</td>
+                      <td>13/10/2026 15:30</td>
+                      <td><span class="badge badge--success">Enviado</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="viewEmailInQueue('EML-9822')">Ver E-mail</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">#EML-9823</td>
+                      <td><strong>Marcos Souza</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">marcos.souza@provedor.com</span></td>
+                      <td>Crédito de Cashback (R$ 130,00)</td>
+                      <td>13/10/2026 15:45</td>
+                      <td><span class="badge badge--warning">Pendente</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="simulateResend('EML-9823')">Forçar Envio</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="td-code">#EML-9820</td>
+                      <td><strong>Ana Paula Silva</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">ana.paula@dominio-invalido.xyz</span></td>
+                      <td>Crédito de Cashback (R$ 60,00)</td>
+                      <td>12/10/2026 18:00</td>
+                      <td><span class="badge badge--error">Falha</span></td>
+                      <td class="td-right">
+                        <button class="btn-table-action" onclick="simulateResend('EML-9820')">Tentar Novamente</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="pagination">
+              <span class="page-info">4 envios registrados na sessão</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- /SCREEN COMUNICAÇÃO E E-MAILS -->
+
+    </main>
+  </div>
+  <!-- /MAIN CONTENT -->
+
+</div>
+<!-- /APP SHELL -->
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAIS INTERATIVOS
+═══════════════════════════════════════════════════════ -->
+
+<!-- 1. Modal Novo Cliente -->
+<div class="modal-backdrop" id="modalNovoCliente">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Cadastrar Novo Cliente</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="formNovoCliente">
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label" for="clienteNome">Nome Completo <span class="required-mark">*</span></label>
+          <input type="text" id="clienteNome" class="input" placeholder="Ex: Maria Silva" required />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label" for="clienteCpf">CPF <span class="required-mark">*</span></label>
+            <input type="text" id="clienteCpf" class="input" placeholder="000.000.000-00" required />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="clienteTel">Celular / WhatsApp <span class="required-mark">*</span></label>
+            <input type="text" id="clienteTel" class="input" placeholder="(11) 99999-9999" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label" for="clienteEmail">E-Mail</label>
+            <input type="email" id="clienteEmail" class="input" placeholder="cliente@email.com" />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="clienteSaldo">Saldo Inicial (R$)</label>
+            <input type="text" id="clienteSaldo" class="input" placeholder="0,00" value="0,00" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--md">Salvar cliente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 2. Modal Novo Lançamento -->
+<div class="modal-backdrop" id="modalNovoLancamento">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Novo Lançamento de Cashback</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="formNovoLancamento">
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label">Cliente Selecionado <span class="required-mark">*</span></label>
+          <input type="text" class="input" placeholder="Buscar por nome ou CPF..." value="ANA RODRIGUES" required />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label">Departamento <span class="required-mark">*</span></label>
+            <input type="text" class="input" placeholder="Ex: Honda Store" required />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Produto / Serviço <span class="required-mark">*</span></label>
+            <input type="text" class="input" placeholder="Ex: Capacete" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label">Valor do Cashback (R$) <span class="required-mark">*</span></label>
+            <input type="text" class="input" placeholder="0,00" required />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Data do Registro</label>
+            <input type="date" class="input" value="2026-10-13" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--md">Confirmar lançamento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 3. Modal Nova Empresa -->
+<div class="modal-backdrop" id="modalNovaEmpresa">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Cadastrar Nova Empresa</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="formNovaEmpresa">
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="input-group">
+          <label class="input-label">Nome Fantasia <span class="required-mark">*</span></label>
+          <input type="text" class="input" placeholder="Ex: MINHA EMPRESA LTDA" required />
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label">Telefone de Contato</label>
+            <input type="text" class="input" placeholder="(11) 90000-0000" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">E-Mail de Contato</label>
+            <input type="email" class="input" placeholder="contato@empresa.com" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label">Cidade</label>
+            <input type="text" class="input" placeholder="São Paulo" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">UF</label>
+            <input type="text" class="input" placeholder="SP" maxlength="2" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+        <button type="submit" class="btn btn--primary btn--md">Salvar empresa</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 4. Modal Configurações da Conta (Engrenagem da Topbar) -->
+<div class="modal-backdrop" id="modalSettings">
+  <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Configurações da Conta</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Abas Internas de Configurações -->
+    <div style="display: flex; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--color-border); background: #FAFCFA;">
+      <button type="button" class="btn btn--primary btn--sm settings-tab-btn" data-settings-target="paneMinhaConta">Minha Conta</button>
+      <button type="button" class="btn btn--ghost btn--sm settings-tab-btn" data-settings-target="panePreferencias">Preferências</button>
+      <button type="button" class="btn btn--ghost btn--sm settings-tab-btn" data-settings-target="paneSeguranca">Segurança</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Aba 1: Minha Conta -->
+      <div class="settings-tab-pane" id="paneMinhaConta" style="display: block;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="input-group">
+            <label class="input-label">Nome do Usuário</label>
+            <input type="text" class="input" value="LEME" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">E-Mail</label>
+            <input type="email" class="input" value="leme@lemesys.com" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Perfil de Acesso</label>
+            <input type="text" class="input" value="Administrador Geral" disabled style="background:#F0F4F1;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Aba 2: Preferências -->
+      <div class="settings-tab-pane" id="panePreferencias" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" checked />
+            <div>
+              <strong>Notificações no Sistema</strong>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">Receber avisos no sino da barra superior sobre lotes e boletos.</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" checked />
+            <div>
+              <strong>Alertas por E-mail</strong>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">Receber aviso quando uma importação de lote for concluída.</div>
+            </div>
+          </label>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" checked />
+            <div>
+              <strong>Barra Lateral Compacta Automática</strong>
+              <div style="font-size: 12px; color: var(--color-text-secondary);">Minimizar a barra lateral em telas médias para mais espaço de tabela.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Aba 3: Segurança -->
+      <div class="settings-tab-pane" id="paneSeguranca" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="input-group">
+            <label class="input-label">Senha Atual</label>
+            <input type="password" class="input" placeholder="••••••••" />
+          </div>
+          <div class="form-grid-2">
+            <div class="input-group">
+              <label class="input-label">Nova Senha</label>
+              <input type="password" class="input" placeholder="Nova senha" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Confirmar Nova Senha</label>
+              <input type="password" class="input" placeholder="Repita a senha" />
+            </div>
+          </div>
+          <div style="padding: 12px; border-radius: 8px; background: #FEF3E2; border: 1px solid #F5C07A; font-size: 12px; color: #92560A;">
+            <strong>Sessão ativa:</strong> Você está conectado neste navegador. Para desconectar outros aparelhos, faça logout e troque sua senha.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+      <button type="button" class="btn btn--primary btn--md" id="btnSaveSettings">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Modal Confirmar Exclusão -->
+<div class="modal-backdrop" id="modalConfirmDelete">
+  <div class="modal-dialog" style="max-width: 440px;">
+    <div class="modal-header">
+      <h3 class="modal-title" style="color: var(--color-error);">Confirmar Exclusão</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="deleteConfirmMessage" style="font-size: 14px; color: var(--color-text-primary); line-height: 1.5;">
+        Tem certeza que deseja excluir este registro? Esta ação não poderá ser desfeita.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+      <button type="button" class="btn btn--danger btn--md" id="btnConfirmDeleteAction">Excluir permanentemente</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Modal Detalhes do Registro (Consulta de Registros) -->
+<div class="modal-backdrop" id="recordDetailModal">
+  <div class="modal-dialog" style="max-width: 620px;">
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title" id="recordModalTitle">Detalhes do Registro</h3>
+        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;" id="recordModalSubtitle">Informações completas e rastreabilidade</p>
+      </div>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="recordModalContent">
+      <!-- Populado dinamicamente por JS -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Fechar</button>
+      <button type="button" class="btn btn--primary btn--md" onclick="showToast('Imprimindo comprovante do registro...', 'info')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Registro
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Modal de Prévia de E-mail da Fila -->
+<div class="modal-backdrop" id="emailPreviewModal">
+  <div class="modal-dialog" style="max-width: 680px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="emailModalTitle">Prévia de E-mail Enviado</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="emailModalBody" style="padding: 16px; background: #F8FAF8;">
+      <!-- HTML renderizado do e-mail -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Fechar</button>
+      <button type="button" class="btn btn--secondary btn--md" id="btnResendEmailModal" onclick="simulateResendFromModal()">Reenviar E-mail</button>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Modal de Teste de Envio -->
+<div class="modal-backdrop" id="emailTestModal">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Teste de Envio de E-mail</h3>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert--info" style="margin-bottom: 16px;">
+        <div style="font-size: 13px;">
+          <strong>Demonstração de Interface:</strong> Este teste valida os parâmetros e adiciona o evento na fila. O disparo definitivo será integrado com o microserviço Java no servidor seguro.
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom: 12px;">
+        <label class="input-label">E-mail de Destino para Teste</label>
+        <input type="email" id="testEmailRecipient" class="input" placeholder="seu.email@empresa.com" value="teste@empresa.com.br" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Modelo a Simular</label>
+        <select class="input" id="testEmailTemplateSelect">
+          <option value="credito">DMX CashBack | Crédito de cashback registrado</option>
+          <option value="saldo">DMX CashBack | Atualização do seu saldo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Cancelar</button>
+      <button type="button" class="btn btn--primary btn--md" onclick="executeEmailTestSimulation()">
+        Disparar Teste Demonstrativo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Modal de Calendário e Lembretes (Anual & Mensal com Eventos) -->
+<div class="modal-backdrop" id="modalCalendar">
+  <div class="modal-dialog" style="max-width: 960px; width: 95%;">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: #FEF3E2; color: #D4831A; display: flex; align-items: center; justify-content: center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Calendário & Agenda Operacional</h3>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 1px;">Acompanhamento de vencimentos, fechamentos e lembretes de cashback</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 20px 24px;">
+      <div class="calendar-layout">
+        <!-- Coluna Principal do Mês -->
+        <div class="calendar-main">
+          <div class="calendar-header">
+            <div class="calendar-nav-wrap">
+              <button type="button" class="calendar-btn-nav" id="btnCalPrevMonth" title="Mês anterior">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div class="calendar-title-month" id="calCurrentMonthTitle">Outubro de 2026</div>
+              <button type="button" class="calendar-btn-nav" id="btnCalNextMonth" title="Próximo mês">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn--ghost btn--sm" id="btnCalToday">Hoje</button>
+              <button type="button" class="btn btn--primary btn--sm" id="btnOpenNewEventForm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Novo Lembrete
+              </button>
+            </div>
+          </div>
+
+          <!-- Cabeçalho dos dias da semana -->
+          <div class="calendar-grid" style="margin-bottom: 4px;">
+            <div class="calendar-weekday">Dom</div>
+            <div class="calendar-weekday">Seg</div>
+            <div class="calendar-weekday">Ter</div>
+            <div class="calendar-weekday">Qua</div>
+            <div class="calendar-weekday">Qui</div>
+            <div class="calendar-weekday">Sex</div>
+            <div class="calendar-weekday">Sáb</div>
+          </div>
+
+          <!-- Grid dos dias (preenchido dinamicamente) -->
+          <div class="calendar-grid" id="calDaysGrid"></div>
+
+          <!-- Legenda de cores verdes e lembretes -->
+          <div style="display: flex; align-items: center; gap: 16px; margin-top: 14px; font-size: 11px; color: var(--color-text-secondary); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span class="calendar-dot" style="background:#348563"></span> Atividade normal
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span class="calendar-dot calendar-dot--dark"></span> Alta atividade
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span class="calendar-dot calendar-dot--reminder"></span> Lembrete / Vencimento
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Lateral de Eventos da Data Selecionada -->
+        <div class="calendar-side">
+          <div class="calendar-side-header">
+            <span class="calendar-side-title" id="calSelectedDateLabel">Eventos do Dia</span>
+            <span class="badge badge--success" id="calEventsCountBadge">0 eventos</span>
+          </div>
+
+          <!-- Formulário de Novo Evento / Lembrete (recolhível) -->
+          <div id="calEventFormContainer" style="display: none; background: #FAFCFA; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="font-size: 13px; color: var(--brand-dark);" id="calFormHeaderTitle">Novo Lembrete</strong>
+              <button type="button" class="btn btn--ghost btn--sm" id="btnCancelCalEventForm" style="padding: 2px 6px;">&times;</button>
+            </div>
+            <form id="formCalEvent" style="display: flex; flex-direction: column; gap: 10px;">
+              <input type="hidden" id="calEventEditId" value="" />
+              <div>
+                <label class="input-label" style="font-size: 11px;">Título do evento / lembrete *</label>
+                <input type="text" id="calInputTitle" class="input input--sm" placeholder="Ex: Fechamento lote 4" required />
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label class="input-label" style="font-size: 11px;">Horário</label>
+                  <input type="time" id="calInputTime" class="input input--sm" value="09:00" />
+                </div>
+                <div>
+                  <label class="input-label" style="font-size: 11px;">Categoria</label>
+                  <select id="calInputCategory" class="input input--sm">
+                    <option value="lembrete">Lembrete</option>
+                    <option value="cashback">Cashback / Lote</option>
+                    <option value="vencimento">Vencimento</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="input-label" style="font-size: 11px;">Descrição (opcional)</label>
+                <input type="text" id="calInputDesc" class="input input--sm" placeholder="Observações..." />
+              </div>
+              <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
+                <button type="button" class="btn btn--ghost btn--sm" id="btnDismissCalForm">Cancelar</button>
+                <button type="submit" class="btn btn--primary btn--sm" id="btnSaveCalEvent">Salvar</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Lista de eventos da data -->
+          <div class="calendar-events-list" id="calEventsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="background: #FAFCFA;">
+      <span style="font-size: 12px; color: var(--color-text-secondary); margin-right: auto;">
+        * Calendário demonstrativo baseado em datas reais. Dados salvos na sessão local.
+      </span>
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Modal de Histórico de Pagamentos (Demonstrativo e Organizado) -->
+<div class="modal-backdrop" id="modalPayments">
+  <div class="modal-dialog" style="max-width: 900px; width: 95%;">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Histórico de Pagamentos e Movimentações</h3>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: 1px;">Conciliação demonstrativa de repasses, taxas e liquidações financeiras</p>
+        </div>
+      </div>
+      <button type="button" class="btn btn--ghost btn--sm btn--icon" data-modal-close aria-label="Fechar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 20px 24px;">
+      <!-- Resumo Rápido -->
+      <div class="payments-summary-card">
+        <div class="payments-metric-item">
+          <div class="payments-metric-label">Total Liquidado</div>
+          <div class="payments-metric-value" style="color: var(--brand-main);">R$ 4.250,00</div>
+        </div>
+        <div class="payments-metric-item">
+          <div class="payments-metric-label">Pagamentos Pendentes</div>
+          <div class="payments-metric-value" style="color: #D4831A;">R$ 850,00</div>
+        </div>
+        <div class="payments-metric-item">
+          <div class="payments-metric-label">Operações Realizadas</div>
+          <div class="payments-metric-value">6 transações</div>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros e Busca -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="filter-chip filter-chip--active pay-filter-btn" data-pay-filter="all">Todas</button>
+          <button type="button" class="filter-chip pay-filter-btn" data-pay-filter="confirmado">Confirmados</button>
+          <button type="button" class="filter-chip pay-filter-btn" data-pay-filter="pendente">Pendentes</button>
+        </div>
+
+        <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
+          <span class="input-search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="inputSearchPayments" class="input input-search" placeholder="Buscar por ID ou descrição..." />
+        </div>
+      </div>
+
+      <!-- Tabela de Pagamentos -->
+      <div class="table-wrapper" style="border: 1px solid var(--color-border); border-radius: var(--radius-md); max-height: 320px; overflow-y: auto;">
+        <table class="data-table" id="paymentsTable">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Identificador</th>
+              <th>Descrição</th>
+              <th>Método</th>
+              <th class="th-right">Valor</th>
+              <th style="text-align: center;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTableBody">
+            <!-- Populado dinamicamente por JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert--info" style="margin-top: 14px; font-size: 12px;">
+        <div style="line-height: 1.5;">
+          <strong>Aviso Demonstrativo:</strong> As transações financeiras apresentadas são dados ilustrativos para visualização de layout. A liquidação e os webhooks bancários reais serão processados pelo backend Java.
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn--secondary btn--md" onclick="showToast('Exportando extrato em formato .CSV...', 'info')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Extrato
+      </button>
+      <button type="button" class="btn btn--ghost btn--md" data-modal-close>Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Modal de Cadastro da Primeira Empresa (Onboarding de Nova Conta) -->
+<div class="modal-backdrop" id="modalFirstCompany" style="z-index: 1050;">
+  <div class="modal-dialog" style="max-width: 480px;">
+    <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+      <div style="flex: 1;"></div>
+    </div>
+    <div class="modal-body" style="padding: 0 28px 24px;">
+      <div class="first-company-banner">
+        <div class="first-company-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <h3 style="font-size: 20px; font-weight: 800; color: var(--brand-dark); margin: 0;">Cadastre sua primeira empresa</h3>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; text-align: center;">
+          Para começar a gerenciar seus lotes e clientes no DMX CashBack, informe a sua loja ou empresa principal.
+        </p>
+      </div>
+
+      <form id="formFirstCompany" style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
+        <div class="input-group">
+          <label class="input-label" for="firstCompanyName">Nome da Empresa / Razão Social <span class="required-mark">*</span></label>
+          <input type="text" id="firstCompanyName" class="input" placeholder="Ex: Calçados Silva ou Padaria Central" required autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="firstCompanyCnpj">CNPJ (opcional)</label>
+          <input type="text" id="firstCompanyCnpj" class="input" placeholder="00.000.000/0001-00" autocomplete="off" />
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="firstCompanySegment">Segmento / Ramo de Atuação (opcional)</label>
+          <select id="firstCompanySegment" class="input">
+            <option value="Varejo de Calçados e Vestuário">Varejo de Calçados e Vestuário</option>
+            <option value="Alimentação e Restaurantes">Alimentação e Restaurantes</option>
+            <option value="Supermercados e Conveniência">Supermercados e Conveniência</option>
+            <option value="Oficina e Automotivo">Oficina e Automotivo</option>
+            <option value="Serviços em Geral">Serviços em Geral</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--lg" id="btnSaveFirstCompany" style="width: 100%; margin-top: 8px;">
+          Salvar e Acessar o Sistema &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FAB (Menu de Atalhos Rápidos — Calendário e Pagamentos)
+═══════════════════════════════════════════════════════ -->
+<div class="fab-container" style="right: 92px; bottom: 26px;">
+  <div class="fab-menu" id="fabMenu">
+    <div class="fab-menu-item" id="fabItemCalendar" role="button" tabindex="0">
+      <div class="fab-menu-icon" style="background:#F97316">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span class="fab-menu-label">Calendário</span>
+    </div>
+    <div class="fab-menu-item" id="fabItemPayments" role="button" tabindex="0">
+      <div class="fab-menu-icon" style="background:#3B82F6">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+      <span class="fab-menu-label">Pagamentos</span>
+    </div>
+  </div>
+  <button class="fab-btn" id="fabBtn" aria-label="Menu de atalhos rápidos" aria-expanded="false" style="width: 44px; height: 44px;">
+    <svg class="fab-icon-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    <svg class="fab-icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DMX ASSIST — ASSISTENTE VIRTUAL INTELIGENTE
+═══════════════════════════════════════════════════════ -->
+<!-- Botão Flutuante DMX Assist -->
+<button class="dmx-assist-fab" id="dmxAssistBtn" aria-label="Abrir assistente virtual DMX Assist" title="DMX Assist — Assistente Virtual">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+  </svg>
+  <span class="dmx-assist-fab-badge">AI</span>
+</button>
+
+<!-- Janela de Conversa DMX Assist -->
+<div class="dmx-assist-window" id="dmxAssistWindow" role="dialog" aria-labelledby="dmxAssistTitle" aria-hidden="true">
+  <!-- Header -->
+  <div class="dmx-assist-header">
+    <div class="dmx-assist-header-info">
+      <div class="dmx-assist-avatar" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><rect x="4" y="8" width="16" height="12" rx="4"/><line x1="9" y1="13" x2="9.01" y2="13"/><line x1="15" y1="13" x2="15.01" y2="13"/><path d="M10 17h4"/></svg>
+      </div>
+      <div>
+        <div class="dmx-assist-title" id="dmxAssistTitle">DMX Assist</div>
+        <div class="dmx-assist-status">Online · Pronta para ajudar</div>
+      </div>
+    </div>
+    <div class="dmx-assist-header-actions">
+      <button type="button" class="dmx-assist-btn-icon" id="btnMinimizeAssist" aria-label="Minimizar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <button type="button" class="dmx-assist-btn-icon" id="btnCloseAssist" aria-label="Fechar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages Body -->
+  <div class="dmx-assist-messages" id="dmxChatMessages" role="log" aria-live="polite">
+    <!-- Mensagens renderizadas dinamicamente mantendo histórico de sessão -->
+  </div>
+
+  <!-- Footer / Input Form -->
+  <div class="dmx-assist-footer">
+    <form class="dmx-assist-form" id="dmxChatForm" onsubmit="event.preventDefault(); handleSendAssistMessage();">
+      <input type="text" class="dmx-assist-input" id="dmxChatInput" placeholder="Digite sua dúvida ou comando..." autocomplete="off" />
+      <button type="submit" class="dmx-assist-send-btn" id="dmxSendBtn" aria-label="Enviar mensagem">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </form>
+    <div class="dmx-assist-disclaimer">DMX Assist v1.0 • Respostas demonstrativas para protótipo de especificação</div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer" role="region" aria-live="polite" aria-label="Notificações"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
