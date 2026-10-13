@@ -5,14 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DMX CashBack — Guia de Estilo e Sistema de Componentes (Etapa 2)</title>
   <meta name="description" content="Design System e biblioteca viva de componentes visuais do DMX CashBack — Etapa 2 de Refinamento." />
+
+  <!-- Compatibilidade GitHub Pages: redireciona para URL com barra final caso seja acessado sem ela -->
+  <script>
+    (function() {
+      var p = window.location.pathname;
+      if (p && !p.endsWith('/') && !p.endsWith('.html')) {
+        window.location.replace(p + '/' + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/tokens.css" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="./css/tokens.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/responsive.css" />
   <style>
     body {
       background-color: var(--color-bg);

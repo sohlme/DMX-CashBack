@@ -5,20 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DMX CashBack — Área do Cliente</title>
   <meta name="description" content="Portal do consumidor DMX CashBack — consulte seu saldo de cashback, extrato de movimentações, resgate no caixa e lojas parceiras credenciadas." />
-  
+
+  <!-- Compatibilidade GitHub Pages: redireciona para URL com barra final caso seja acessado sem ela -->
+  <script>
+    (function() {
+      var p = window.location.pathname;
+      if (p && !p.endsWith('/') && !p.endsWith('.html')) {
+        window.location.replace(p + '/' + window.location.search + window.location.hash);
+      }
+    })();
+  </script>
+
   <!-- Tipografia Manrope -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Estilos Globais e Componentes Reutilizados do Design System -->
-  <link rel="stylesheet" href="css/tokens.css" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="./css/tokens.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/responsive.css" />
 
   <!-- Estilos Exclusivos da Versão do Cliente -->
-  <link rel="stylesheet" href="css/cliente.css" />
+  <link rel="stylesheet" href="./css/cliente.css" />
 </head>
 <body class="client-app">
 
@@ -554,8 +564,8 @@
   <div class="toast-container" id="clientToastContainer"></div>
 
   <!-- Scripts Organizados da Aplicação do Cliente -->
-  <script src="js/cliente-data.js"></script>
-  <script src="js/cliente-api.js"></script>
-  <script src="js/cliente.js"></script>
+  <script src="./js/cliente-data.js"></script>
+  <script src="./js/cliente-api.js"></script>
+  <script src="./js/cliente.js"></script>
 </body>
 </html>
