@@ -180,7 +180,15 @@ async function renderHomeScreen() {
   const recentListEl = document.getElementById('homeRecentTxList');
   if (recentListEl && recentRes.success) {
     if (recentRes.data.length === 0) {
-      recentListEl.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--color-text-secondary); font-size: 13px;">Nenhuma movimentação recente registrada.</div>`;
+      recentListEl.innerHTML = `
+        <div style="text-align: center; padding: 36px 20px; background: white; border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--neutral-100); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <p style="font-weight: 700; font-size: 14px; color: var(--color-text-primary); margin: 0 0 4px;">Você ainda não possui movimentações de cashback</p>
+          <p style="font-size: 12px; color: var(--color-text-secondary); margin: 0;">Suas compras e créditos de cashback aparecerão aqui assim que forem registrados pelas lojas parceiras.</p>
+        </div>
+      `;
     } else {
       recentListEl.innerHTML = recentRes.data.map(t => createTxCardHTML(t)).join('');
     }
@@ -199,32 +207,40 @@ async function renderMeuCashbackScreen() {
   const usedEl = document.getElementById('cashbackUsedMetric');
   const expiringEl = document.getElementById('cashbackExpiringMetric');
 
-  if (availEl) availEl.textContent = clientState.balanceVisible ? `R$ ${b.available.toFixed(2).replace('.', ',')}` : '••••••';
-  if (earnedEl) earnedEl.textContent = clientState.balanceVisible ? `R$ ${b.totalEarned.toFixed(2).replace('.', ',')}` : '••••••';
-  if (usedEl) usedEl.textContent = clientState.balanceVisible ? `R$ ${b.totalUsed.toFixed(2).replace('.', ',')}` : '••••••';
-  if (expiringEl) expiringEl.textContent = clientState.balanceVisible ? `R$ ${b.expiringSoon.toFixed(2).replace('.', ',')}` : '••••••';
+  if (availEl) availEl.textContent = clientState.balanceVisible ? `R$ ${(b.available || 0).toFixed(2).replace('.', ',')}` : '••••••';
+  if (earnedEl) earnedEl.textContent = clientState.balanceVisible ? `R$ ${(b.lifetimeEarned || b.totalEarned || 0).toFixed(2).replace('.', ',')}` : '••••••';
+  if (usedEl) usedEl.textContent = clientState.balanceVisible ? `R$ ${(b.lifetimeUsed || b.totalUsed || 0).toFixed(2).replace('.', ',')}` : '••••••';
+  if (expiringEl) expiringEl.textContent = clientState.balanceVisible ? `R$ ${(b.expiring || b.expiringSoon || 0).toFixed(2).replace('.', ',')}` : '••••••';
 
   // Distribuição de saldo por loja credenciada
   const storesRes = await ClientApiService.getStores();
   const storeDistEl = document.getElementById('cashbackStoreDistribution');
   if (storeDistEl && storesRes.success) {
-    storeDistEl.innerHTML = storesRes.data.map(s => {
-      const pct = b.available > 0 ? Math.round((s.balance / b.available) * 100) : 0;
-      const displayVal = clientState.balanceVisible ? `R$ ${s.balance.toFixed(2).replace('.', ',')}` : '••••••';
-      return `
-        <div class="store-dist-item">
-          <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--color-text-primary);">
-              <span>${s.name}</span>
-              <span>${displayVal} <span style="font-weight: 500; font-size: 11px; color: var(--color-text-secondary);">(${pct}%)</span></span>
-            </div>
-            <div class="store-progress-bg">
-              <div class="store-progress-fill" style="width: ${pct}%; background-color: ${s.badgeColor};"></div>
-            </div>
-          </div>
+    if (!storesRes.data || storesRes.data.length === 0) {
+      storeDistEl.innerHTML = `
+        <div style="text-align: center; padding: 24px; color: var(--color-text-secondary); font-size: 13px; background: white; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+          Nenhum saldo acumulado em lojas parceiras no momento.
         </div>
       `;
-    }).join('');
+    } else {
+      storeDistEl.innerHTML = storesRes.data.map(s => {
+        const pct = b.available > 0 ? Math.round((s.balance / b.available) * 100) : 0;
+        const displayVal = clientState.balanceVisible ? `R$ ${s.balance.toFixed(2).replace('.', ',')}` : '••••••';
+        return `
+          <div class="store-dist-item">
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--color-text-primary);">
+                <span>${s.name}</span>
+                <span>${displayVal} <span style="font-weight: 500; font-size: 11px; color: var(--color-text-secondary);">(${pct}%)</span></span>
+              </div>
+              <div class="store-progress-bg">
+                <div class="store-progress-fill" style="width: ${pct}%; background-color: ${s.badgeColor || '#2F7957'};"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
   }
 }
 
@@ -244,9 +260,9 @@ async function renderMeuExtratoScreen() {
         <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--neutral-100); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: var(--color-text-secondary);">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
-        <h4 style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px;">Nenhuma movimentação encontrada</h4>
-        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0 0 16px;">Tente alterar os filtros de período, loja ou busca.</p>
-        <button type="button" class="btn btn--secondary btn--sm" onclick="resetExtratoFilters()">Limpar Filtros</button>
+        <h4 style="font-size: 15px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px;">Você ainda não possui movimentações de cashback</h4>
+        <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0 0 16px;">Quando realizar uma compra em lojas parceiras credenciadas, seus créditos e débitos serão listados aqui.</p>
+        <button type="button" class="btn btn--secondary btn--sm" onclick="resetExtratoFilters()">Atualizar Extrato</button>
       </div>
     `;
     if (countEl) countEl.textContent = '0 movimentações';
@@ -440,7 +456,8 @@ function toggleFaqItem(element) {
 
 /* ── Modal de Comprovante de Movimentação ─────────────────── */
 function openTxReceiptModal(id) {
-  const tx = DMX_CLIENT_MOCK_DATA.transactions.find(t => t.id === id);
+  const transactions = window.DMX_CLIENT_DATA?.transactions || [];
+  const tx = transactions.find(t => t.id === id);
   if (!tx) return;
 
   const isDebit = tx.cashbackValue < 0 || tx.type === 'debit';
@@ -510,10 +527,13 @@ function closeClientModal(modalId) {
 
 /* ── Logout da Área do Cliente ────────────────────────────── */
 function handleClientLogout() {
+  try {
+    sessionStorage.removeItem('dmx_client_session');
+  } catch (e) {}
   showClientToast('Sessão encerrada com sucesso. Redirecionando para o login...', 'info');
   setTimeout(() => {
-    window.location.href = 'login-cliente.html';
-  }, 500);
+    window.location.replace('login-cliente.html');
+  }, 400);
 }
 
 /* ── Listeners Globais da Interface ───────────────────────── */

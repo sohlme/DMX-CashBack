@@ -16,6 +16,27 @@
     })();
   </script>
 
+  <!-- Proteção de Rota: Exige autenticação prévia do consumidor -->
+  <script>
+    (function() {
+      try {
+        var sess = sessionStorage.getItem('dmx_client_session');
+        if (!sess) {
+          window.location.replace('login-cliente.html');
+        }
+      } catch (e) {
+        window.location.replace('login-cliente.html');
+      }
+    })();
+
+    // Previne acesso pelo botão voltar do navegador após logout
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted && !sessionStorage.getItem('dmx_client_session')) {
+        window.location.replace('login-cliente.html');
+      }
+    });
+  </script>
+
   <!-- Tipografia Manrope -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -53,25 +74,25 @@
 
       <!-- Ações da Topbar -->
       <div class="client-topbar-actions">
-        <!-- Alternar para Painel da Empresa (Atalho de Avaliação) -->
-        <a href="index.html" class="btn btn--ghost btn--sm" style="font-size: 12px; gap: 6px; display: inline-flex;" title="Ir para o painel administrativo de empresas">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          <span style="display: none; @media(min-width: 640px){display:inline;}">Painel Empresa</span>
-        </a>
-
         <!-- Notificações -->
         <button type="button" class="btn btn--ghost btn--sm btn--icon" onclick="switchClientTab('notificacoes')" style="position: relative;" aria-label="Notificações Internas">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-          <span class="notification-badge" id="clientNotifBadge" style="display: none; width: 16px; height: 16px; font-size: 9px; top: -1px; right: -1px;">2</span>
+          <span class="notification-badge" id="clientNotifBadge" style="display: none; width: 16px; height: 16px; font-size: 9px; top: -1px; right: -1px;">0</span>
         </button>
 
         <!-- Perfil do Usuário -->
         <button type="button" class="client-avatar-btn" onclick="switchClientTab('perfil')" title="Meus Dados Cadastrais">
-          <div class="client-avatar-circle" id="clientUserAvatar">RC</div>
+          <div class="client-avatar-circle" id="clientUserAvatar">--</div>
           <div class="client-user-info">
-            <div class="client-user-name" id="clientUserName">Roberto Carlos</div>
+            <div class="client-user-name" id="clientUserName">Carregando...</div>
             <div class="client-user-sub">Meu Perfil</div>
           </div>
+        </button>
+
+        <!-- Botão Sair da Conta (Logout) -->
+        <button type="button" class="btn btn--ghost btn--sm" onclick="handleClientLogout()" title="Sair da Conta" style="font-size: 12px; gap: 6px; color: var(--color-text-secondary);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Sair</span>
         </button>
       </div>
     </div>
@@ -120,7 +141,7 @@
         <!-- Saudação do Cliente -->
         <div style="margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
           <div>
-            <h1 style="font-size: 22px; font-weight: 800; color: var(--color-text-primary); margin: 0 0 2px;" id="clientGreeting">Olá, Roberto!</h1>
+            <h1 style="font-size: 22px; font-weight: 800; color: var(--color-text-primary); margin: 0 0 2px;" id="clientGreeting">Olá!</h1>
             <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">Aqui está o resumo dos seus créditos e movimentações</p>
           </div>
           <button type="button" class="btn btn--ghost btn--sm" onclick="toggleBalanceVisibility()" style="font-size: 12px;">
@@ -147,14 +168,14 @@
 
           <div class="client-wallet-amount-row">
             <span class="client-wallet-currency">R$</span>
-            <span class="client-wallet-amount" id="homeBalanceAmount">85,00</span>
+            <span class="client-wallet-amount" id="homeBalanceAmount">0,00</span>
           </div>
 
           <!-- Barra de aviso de vencimento -->
           <div class="client-wallet-info-bar">
             <div class="client-wallet-expiring">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>Aviso: <strong id="homeExpiringAmount">R$ 15,00</strong> expiram em <strong>28/10/2026</strong></span>
+              <span>Aviso: <strong id="homeExpiringAmount">R$ 0,00</strong> a expirar</span>
             </div>
             <button type="button" class="btn btn--sm btn--wallet-secondary" style="height: 26px; padding: 0 10px; font-size: 11px;" onclick="switchClientTab('extrato')">
               Consultar Extrato
@@ -213,26 +234,26 @@
         <div class="cashback-metric-cards">
           <div class="cashback-metric-item">
             <span class="cashback-metric-label">Saldo Disponível</span>
-            <div class="cashback-metric-val" id="cashbackAvailableMetric">R$ 85,00</div>
+            <div class="cashback-metric-val" id="cashbackAvailableMetric">R$ 0,00</div>
             <span style="font-size: 11px; color: var(--brand-main); font-weight: 600; margin-top: 4px;">Liberado para resgate</span>
           </div>
 
           <div class="cashback-metric-item">
             <span class="cashback-metric-label">Total Acumulado</span>
-            <div class="cashback-metric-val" id="cashbackEarnedMetric">R$ 340,00</div>
+            <div class="cashback-metric-val" id="cashbackEarnedMetric">R$ 0,00</div>
             <span style="font-size: 11px; color: var(--color-text-secondary); margin-top: 4px;">Histórico total de créditos</span>
           </div>
 
           <div class="cashback-metric-item">
             <span class="cashback-metric-label">Total Utilizado</span>
-            <div class="cashback-metric-val" id="cashbackUsedMetric">R$ 255,00</div>
+            <div class="cashback-metric-val" id="cashbackUsedMetric">R$ 0,00</div>
             <span style="font-size: 11px; color: var(--color-text-secondary); margin-top: 4px;">Descontos aplicados no caixa</span>
           </div>
 
           <div class="cashback-metric-item" style="border-left: 3px solid #F59E0B;">
             <span class="cashback-metric-label">Próximo do Vencimento</span>
-            <div class="cashback-metric-val" style="color: #D97706;" id="cashbackExpiringMetric">R$ 15,00</div>
-            <span style="font-size: 11px; color: #D97706; font-weight: 600; margin-top: 4px;">Vence em 28/10/2026</span>
+            <div class="cashback-metric-val" style="color: #D97706;" id="cashbackExpiringMetric">R$ 0,00</div>
+            <span style="font-size: 11px; color: #D97706; font-weight: 600; margin-top: 4px;">Nenhum crédito a vencer</span>
           </div>
         </div>
 
@@ -307,10 +328,6 @@
               <label class="input-label" style="font-size: 11px;">Loja Parceira</label>
               <select id="extratoStoreSelect" class="input input--sm">
                 <option value="all">Todas as lojas</option>
-                <option value="1">Leme Calçados</option>
-                <option value="2">Supermercado Central</option>
-                <option value="3">Farmácia Vida & Saúde</option>
-                <option value="4">Ótica Visão Real</option>
               </select>
             </div>
 
@@ -380,32 +397,32 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px;">
               <div class="input-group">
                 <label class="input-label">Nome Completo</label>
-                <input type="text" id="profileInputName" class="input" value="Roberto Carlos" required />
+                <input type="text" id="profileInputName" class="input" placeholder="Seu nome completo" value="" required />
               </div>
 
               <div class="input-group">
                 <label class="input-label">CPF (Identificador único)</label>
-                <input type="text" id="profileInputCpf" class="input" value="123.456.789-00" disabled style="background-color: var(--neutral-100); cursor: not-allowed;" />
+                <input type="text" id="profileInputCpf" class="input" placeholder="000.000.000-00" value="" disabled style="background-color: var(--neutral-100); cursor: not-allowed;" />
                 <span class="input-hint">O CPF é vinculado aos cupons e notas fiscais das compras nas lojas.</span>
               </div>
 
               <div class="input-group">
                 <label class="input-label">Telefone de Contato</label>
-                <input type="tel" id="profileInputPhone" class="input" value="(11) 98765-4321" required />
+                <input type="tel" id="profileInputPhone" class="input" placeholder="(00) 00000-0000" value="" required />
                 <span class="input-hint">Utilizado para identificação e validação de segurança.</span>
               </div>
 
               <div class="input-group">
                 <label class="input-label">E-mail Cadastrado Oficial</label>
-                <input type="email" id="profileInputEmail" class="input" value="roberto.carlos@email.com" required />
+                <input type="email" id="profileInputEmail" class="input" placeholder="seu.email@exemplo.com" value="" required />
                 <span class="input-hint">Canal oficial para ativação de conta, recibos de cashback e alertas de vencimento.</span>
               </div>
             </div>
 
             <!-- Dados adicionais de cadastro -->
             <div style="display: flex; gap: 24px; border-top: 1px solid var(--neutral-100); padding-top: 14px; margin-bottom: 18px; font-size: 12px; color: var(--color-text-secondary); flex-wrap: wrap;">
-              <div>Cliente desde: <strong style="color: var(--color-text-primary);" id="profileMemberSinceDisplay">15/01/2026</strong></div>
-              <div>Loja de Origem: <strong style="color: var(--color-text-primary);" id="profileOriginStoreDisplay">Leme Calçados — Loja Centro</strong></div>
+              <div>Cliente desde: <strong style="color: var(--color-text-primary);" id="profileMemberSinceDisplay">--</strong></div>
+              <div>Loja de Origem: <strong style="color: var(--color-text-primary);" id="profileOriginStoreDisplay">--</strong></div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">

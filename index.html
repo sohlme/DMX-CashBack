@@ -16,6 +16,16 @@
     })();
   </script>
 
+  <!-- Prevenção de navegação pelo histórico (botão voltar) pós-logout -->
+  <script>
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted && !sessionStorage.getItem('dmx_admin_session')) {
+        var overlay = document.getElementById('authOverlay');
+        if (overlay) overlay.style.display = 'flex';
+      }
+    });
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -30,7 +40,7 @@
 <!-- ═══════════════════════════════════════════════════════
      0. TELA DE AUTENTICAÇÃO (Login / Cadastro / Recuperação)
 ═══════════════════════════════════════════════════════ -->
-<div class="auth-overlay" id="authOverlay" style="display: none;">
+<div class="auth-overlay" id="authOverlay" style="display: flex;">
   <div class="company-selector-bg-deco" aria-hidden="true">
     <div class="deco-circle deco-circle--1"></div>
     <div class="deco-circle deco-circle--2"></div>
@@ -54,10 +64,10 @@
       <!-- Histórico local discreto de contas salvas -->
       <div class="auth-saved-account" id="savedAccountBox" style="display: none;">
         <div class="saved-account-user">
-          <div class="saved-avatar">DL</div>
+          <div class="saved-avatar" id="savedAvatarDisplay">--</div>
           <div>
-            <div class="saved-name" id="savedNameDisplay">Daniel Leme</div>
-            <div class="saved-email" id="savedEmailDisplay">leme@lemesys.com</div>
+            <div class="saved-name" id="savedNameDisplay">--</div>
+            <div class="saved-email" id="savedEmailDisplay">--</div>
           </div>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
@@ -71,14 +81,14 @@
       <!-- Formulário de Login -->
       <form id="loginForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div class="input-group">
-          <label class="input-label" for="loginEmail">E-mail</label>
-          <input type="email" id="loginEmail" class="input" placeholder="seu.email@empresa.com" value="leme@lemesys.com" required autocomplete="username" />
+          <label class="input-label" for="loginEmail">E-mail corporativo</label>
+          <input type="email" id="loginEmail" class="input" placeholder="seu.email@empresa.com" value="" required autocomplete="username" />
         </div>
 
         <div class="input-group">
           <label class="input-label" for="loginPassword">Senha</label>
           <div class="password-input-wrap">
-            <input type="password" id="loginPassword" class="input" placeholder="••••••••" value="123456" required autocomplete="current-password" />
+            <input type="password" id="loginPassword" class="input" placeholder="••••••••" value="" required autocomplete="current-password" />
             <button type="button" class="btn-toggle-pw" id="togglePasswordBtn" aria-label="Mostrar ou ocultar senha">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
@@ -87,8 +97,8 @@
 
         <div class="auth-form-footer">
           <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;">
-            <input type="checkbox" id="rememberAccount" checked />
-            <span>Lembrar neste dispositivo</span>
+            <input type="checkbox" id="rememberAccount" />
+            <span>Lembrar meu e-mail neste dispositivo</span>
           </label>
           <a href="#" class="auth-link" id="linkGoToForgot">Esqueci minha senha</a>
         </div>
@@ -116,7 +126,7 @@
       <form id="registerForm" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="input-group">
           <label class="input-label">Nome completo <span class="required-mark">*</span></label>
-          <input type="text" id="regName" class="input" placeholder="Ex: Roberto Carlos" required autocomplete="name" />
+          <input type="text" id="regName" class="input" placeholder="Ex: Seu Nome Completo" required autocomplete="name" />
         </div>
 
         <div class="input-group">
@@ -207,26 +217,8 @@
     </div>
 
     <div class="company-list" id="companyList">
-      <div class="company-item company-item--selected" data-company="EMPRESA PADRÃO">
-        <div class="company-avatar company-avatar--ep">EP</div>
-        <span class="company-name">EMPRESA PADRÃO</span>
-        <span class="company-check">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-      </div>
-      <div class="company-item" data-company="DMX MARKETING">
-        <div class="company-avatar company-avatar--dm">DM</div>
-        <span class="company-name">DMX MARKETING</span>
-        <span class="company-check">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-      </div>
-      <div class="company-item" data-company="ONLY TEST">
-        <div class="company-avatar company-avatar--ot">OT</div>
-        <span class="company-name">ONLY TEST: DO NOT USE!</span>
-        <span class="company-check">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
+      <div style="text-align: center; padding: 24px; color: var(--color-text-secondary); font-size: 13px;">
+        Nenhuma empresa cadastrada para esta conta.
       </div>
     </div>
 
@@ -272,7 +264,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div class="sidebar-profile-info">
-        <span class="sidebar-profile-name" id="sidebarUserName">Daniel Leme</span>
+        <span class="sidebar-profile-name" id="sidebarUserName">Administrador</span>
       </div>
     </div>
 
@@ -392,7 +384,7 @@
 
       <!-- Empresa e Rota Atual (Navegação Integrada e Compacta) -->
       <div class="topbar-company">
-        <span class="topbar-company-name" id="companyNameDisplay">EMPRESA PADRÃO</span>
+        <span class="topbar-company-name" id="companyNameDisplay">DMX CashBack</span>
         <span class="topbar-breadcrumb-sep" aria-hidden="true">/</span>
         <span class="topbar-breadcrumb-current" id="topbarCurrentPage">Início</span>
       </div>
@@ -474,8 +466,8 @@
               </div>
               <div class="metric-card-info">
                 <span class="metric-card-label">Total Importado</span>
-                <span class="metric-card-val">R$ 3.800,00</span>
-                <span class="metric-card-meta">4 lotes processados</span>
+                <span class="metric-card-val" id="dashMetricTotal">R$ 0,00</span>
+                <span class="metric-card-meta">0 lotes processados</span>
               </div>
             </div>
 
@@ -485,8 +477,8 @@
               </div>
               <div class="metric-card-info">
                 <span class="metric-card-label">Saldo Disponível</span>
-                <span class="metric-card-val" style="color: #348563;">R$ 3.800,00</span>
-                <span class="metric-card-meta">100% disponível para uso</span>
+                <span class="metric-card-val" style="color: #348563;" id="dashMetricBalance">R$ 0,00</span>
+                <span class="metric-card-meta">0% disponível para uso</span>
               </div>
             </div>
 
@@ -496,8 +488,8 @@
               </div>
               <div class="metric-card-info">
                 <span class="metric-card-label">Clientes Cadastrados</span>
-                <span class="metric-card-val">6</span>
-                <span class="metric-card-meta">5 novos neste mês</span>
+                <span class="metric-card-val" id="dashMetricClients">0</span>
+                <span class="metric-card-meta">0 novos neste mês</span>
               </div>
             </div>
 
@@ -507,8 +499,8 @@
               </div>
               <div class="metric-card-info">
                 <span class="metric-card-label">Lotes Ativos</span>
-                <span class="metric-card-val">4</span>
-                <span class="metric-card-meta">Ver detalhes dos lotes &rarr;</span>
+                <span class="metric-card-val" id="dashMetricLots">0</span>
+                <span class="metric-card-meta">Nenhum lote ativo &rarr;</span>
               </div>
             </div>
           </div>
@@ -520,34 +512,15 @@
             <div class="dashboard-panel-card">
               <div class="dashboard-panel-header">
                 <span class="dashboard-panel-title">Pendências e Atenção</span>
-                <span class="badge badge--warning">2 pendentes</span>
+                <span class="badge badge--neutral">0 pendentes</span>
               </div>
               <div class="dashboard-alerts-list">
-                <div class="dashboard-alert-item dashboard-alert-item--warning">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  <div class="dashboard-alert-text">
-                    <strong>Boleto #1042 vence amanhã</strong>
-                    <div style="font-size: 11px; margin-top: 2px;">Valor de R$ 850,00 ref. fornecedores.</div>
+                <div style="padding: 32px 16px; text-align: center; color: var(--color-text-secondary); font-size: 13px;">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #E8F4EC; color: #348563; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                  <button class="dashboard-alert-btn" onclick="navigateTo('boletos')">Ver boleto</button>
-                </div>
-
-                <div class="dashboard-alert-item dashboard-alert-item--success">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
-                  <div class="dashboard-alert-text">
-                    <strong>Importação do Lote 4 concluída</strong>
-                    <div style="font-size: 11px; margin-top: 2px;">Planilha CashbackDaniel.xlsx processada com êxito.</div>
-                  </div>
-                  <button class="dashboard-alert-btn" onclick="navigateTo('lotes')">Ver lote</button>
-                </div>
-
-                <div class="dashboard-alert-item dashboard-alert-item--info">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  <div class="dashboard-alert-text">
-                    <strong>Nova nota fiscal #4085 emitida</strong>
-                    <div style="font-size: 11px; margin-top: 2px;">Conferência pendente para fechamento.</div>
-                  </div>
-                  <button class="dashboard-alert-btn" onclick="navigateTo('notas')">Conferir</button>
+                  <strong>Tudo em dia!</strong>
+                  <div style="font-size: 12px; margin-top: 2px;">Nenhuma pendência ou alerta operacional no momento.</div>
                 </div>
               </div>
             </div>
@@ -570,28 +543,9 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="td-code">04/10/2026</td>
-                      <td><strong>ANA RODRIGUES</strong></td>
-                      <td>Consórcio</td>
-                      <td class="td-monetary">R$ 200,00</td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">04/10/2026</td>
-                      <td><strong>CARLOS MENDES</strong></td>
-                      <td>Honda Store</td>
-                      <td class="td-monetary">R$ 500,00</td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">04/10/2026</td>
-                      <td><strong>BEATRIZ COSTA</strong></td>
-                      <td>Consórcio Honda</td>
-                      <td class="td-monetary">R$ 250,00</td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">04/10/2026</td>
-                      <td><strong>PEDRO ALVES</strong></td>
-                      <td>Oficina</td>
-                      <td class="td-monetary">R$ 300,00</td>
+                      <td colspan="4" style="text-align: center; padding: 32px 16px; color: var(--color-text-secondary); font-size: 13px;">
+                        Nenhuma atividade recente de cashback registrada.
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -623,9 +577,9 @@
             <!-- Barra de Filtros e Pesquisa Simples -->
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
               <div class="table-filter-bar" style="margin-bottom: 0;">
-                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (6)</button>
-                <button type="button" class="filter-chip" data-filter="active">Ativos (6)</button>
-                <button type="button" class="filter-chip" data-filter="with-balance">Com Saldo</button>
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (0)</button>
+                <button type="button" class="filter-chip" data-filter="active">Ativos (0)</button>
+                <button type="button" class="filter-chip" data-filter="with-balance">Com Saldo (0)</button>
               </div>
 
               <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
@@ -654,94 +608,12 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td data-label="Código" class="td-code">1</td>
-                      <td data-label="Nome"><strong>ANA RODRIGUES</strong></td>
-                      <td data-label="CPF">123.456.789-00</td>
-                      <td data-label="Celular">(11) 99999-0001</td>
-                      <td data-label="E-Mail">ana.rodrigues@email.com</td>
-                      <td data-label="Saldo" class="td-monetary">1.400,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action" onclick="showToast('Visualizando Ana Rodrigues', 'info')">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                          Ver
-                        </button>
-                        <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando Ana Rodrigues', 'info')">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Ana Rodrigues')">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">2</td>
-                      <td data-label="Nome"><strong>CARLOS MENDES</strong></td>
-                      <td data-label="CPF">987.654.321-00</td>
-                      <td data-label="Celular">(11) 99999-0002</td>
-                      <td data-label="E-Mail">carlos.mendes@email.com</td>
-                      <td data-label="Saldo" class="td-monetary">1.000,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action" onclick="showToast('Visualizando Carlos Mendes', 'info')">Ver</button>
-                        <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando Carlos Mendes', 'info')">Editar</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Carlos Mendes')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">3</td>
-                      <td data-label="Nome"><strong>BEATRIZ COSTA</strong></td>
-                      <td data-label="CPF">—</td>
-                      <td data-label="Celular">—</td>
-                      <td data-label="E-Mail">—</td>
-                      <td data-label="Saldo" class="td-monetary">500,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--edit">Editar</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Beatriz Costa')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">4</td>
-                      <td data-label="Nome"><strong>MARCOS SILVA</strong></td>
-                      <td data-label="CPF">—</td>
-                      <td data-label="Celular">—</td>
-                      <td data-label="E-Mail">—</td>
-                      <td data-label="Saldo" class="td-monetary">200,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--edit">Editar</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Marcos Silva')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">5</td>
-                      <td data-label="Nome"><strong>FERNANDA LIMA</strong></td>
-                      <td data-label="CPF">—</td>
-                      <td data-label="Celular">—</td>
-                      <td data-label="E-Mail">—</td>
-                      <td data-label="Saldo" class="td-monetary">300,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--edit">Editar</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Fernanda Lima')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">6</td>
-                      <td data-label="Nome"><strong>PEDRO ALVES</strong></td>
-                      <td data-label="CPF">—</td>
-                      <td data-label="Celular">—</td>
-                      <td data-label="E-Mail">—</td>
-                      <td data-label="Saldo" class="td-monetary">600,00</td>
-                      <td data-label="Situação" class="td-center"><span class="badge badge--success">SIM</span></td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--edit">Editar</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', 'Pedro Alves')">Excluir</button>
+                      <td colspan="8" style="text-align: center; padding: 48px 16px; color: var(--color-text-secondary); font-size: 13px;">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--neutral-100); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        </div>
+                        <div style="font-weight: 700; font-size: 14px; color: var(--color-text-primary); margin-bottom: 4px;">Nenhum cliente cadastrado ainda</div>
+                        <div>Importe uma planilha com clientes ou cadastre um novo cliente manualmente.</div>
                       </td>
                     </tr>
                   </tbody>
@@ -751,7 +623,7 @@
 
             <!-- Paginação -->
             <div class="pagination">
-              <span class="page-info">Mostrando 6 de 6 clientes</span>
+              <span class="page-info">0 clientes cadastrados</span>
               <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
               </button>
@@ -779,9 +651,9 @@
             <!-- Barra de Filtros e Pesquisa -->
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
               <div class="table-filter-bar" style="margin-bottom: 0;">
-                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (13)</button>
-                <button type="button" class="filter-chip" data-filter="disponivel">Disponível</button>
-                <button type="button" class="filter-chip" data-filter="utilizado">Utilizado</button>
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (0)</button>
+                <button type="button" class="filter-chip" data-filter="disponivel">Disponível (0)</button>
+                <button type="button" class="filter-chip" data-filter="utilizado">Utilizado (0)</button>
               </div>
 
               <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
@@ -809,21 +681,22 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td data-label="Código" class="td-code">13</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Consórcio</td><td data-label="Produto">Cota</td><td data-label="Valor" class="td-monetary">R$ 200,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">4</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">12</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 600,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">4</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">11</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">ANA RODRIGUES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 600,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">3</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">10</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">PEDRO ALVES</td><td data-label="Departamento">Oficina</td><td data-label="Produto">Revisão/serviços</td><td data-label="Valor" class="td-monetary">R$ 300,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">9</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">FERNANDA LIMA</td><td data-label="Departamento">Peças e Acessórios</td><td data-label="Produto">Mercadorias</td><td data-label="Valor" class="td-monetary">R$ 150,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">8</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">MARCOS SILVA</td><td data-label="Departamento">Banco Honda</td><td data-label="Produto">Contrato Financ.</td><td data-label="Valor" class="td-monetary">R$ 100,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">7</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">BEATRIZ COSTA</td><td data-label="Departamento">Consórcio Honda</td><td data-label="Produto">Cota de consórcio</td><td data-label="Valor" class="td-monetary">R$ 250,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
-                    <tr><td data-label="Código" class="td-code">6</td><td data-label="Data">04/10/2026</td><td data-label="Cliente">CARLOS MENDES</td><td data-label="Departamento">Honda Store</td><td data-label="Produto">Capacete/Boutique</td><td data-label="Valor" class="td-monetary">R$ 500,00</td><td data-label="Status"><span class="badge badge--status-disponivel">DISPONIVEL</span></td><td data-label="Lote" class="td-center td-code">2</td><td data-label="Ações" class="td-right"><button class="btn-table-action">Ver</button></td></tr>
+                    <tr>
+                      <td colspan="9" style="text-align: center; padding: 48px 16px; color: var(--color-text-secondary); font-size: 13px;">
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--neutral-100); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div style="font-weight: 700; font-size: 14px; color: var(--color-text-primary); margin-bottom: 4px;">Nenhum lançamento de cashback registrado</div>
+                        <div>Os lançamentos de cashback aparecerão aqui após a importação de planilhas.</div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
             <div class="pagination">
-              <span class="page-info">Página 1 de 1 (13 lançamentos)</span>
+              <span class="page-info">0 lançamentos registrados</span>
               <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
               </button>
@@ -926,7 +799,7 @@
               <div id="importStep2" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
                   <div>
-                    <strong>Arquivo selecionado:</strong> <span id="previewFileName" style="color: var(--brand-main); font-weight: 700;">Cashback_Clientes_Outubro.xlsx</span>
+                    <strong>Arquivo selecionado:</strong> <span id="previewFileName" style="color: var(--brand-main); font-weight: 700;">Planilha_Importacao.xlsx</span>
                   </div>
                   <button type="button" class="btn btn--ghost btn--sm" id="btnStep2Back">Trocar arquivo</button>
                 </div>
@@ -945,12 +818,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr><td class="td-code">1</td><td>123.456.789-00</td><td>ANA RODRIGUES</td><td class="td-monetary">200,00</td><td>Consórcio</td><td>Cota</td><td>(11) 99999-0001</td></tr>
-                      <tr><td class="td-code">2</td><td>987.654.321-00</td><td>CARLOS MENDES</td><td class="td-monetary">500,00</td><td>Honda Store</td><td>Capacete</td><td>(11) 99999-0002</td></tr>
-                      <tr><td class="td-code">3</td><td>555.444.333-22</td><td>BEATRIZ COSTA</td><td class="td-monetary">250,00</td><td>Consórcio</td><td>Cota</td><td>(11) 99999-0003</td></tr>
-                      <tr><td class="td-code">4</td><td>111.222.333-44</td><td>MARCOS SILVA</td><td class="td-monetary">100,00</td><td>Banco Honda</td><td>Financ.</td><td>(11) 99999-0004</td></tr>
-                      <tr><td class="td-code">5</td><td>999.888.777-66</td><td>FERNANDA LIMA</td><td class="td-monetary">150,00</td><td>Peças</td><td>Acessórios</td><td>(11) 99999-0005</td></tr>
-                      <tr><td class="td-code">6</td><td>000.111.222-33</td><td>JOÃO SOUZA</td><td class="td-monetary">300,00</td><td>Oficina</td><td>Revisão</td><td style="color:#C0392B; font-weight:bold;">(Inválido)</td></tr>
+                      <tr><td class="td-code">1</td><td>000.000.000-01</td><td>[Cliente Exemplo 1]</td><td class="td-monetary">R$ 0,00</td><td>Varejo</td><td>Item Exemplo 1</td><td>(11) 90000-0001</td></tr>
+                      <tr><td class="td-code">2</td><td>000.000.000-02</td><td>[Cliente Exemplo 2]</td><td class="td-monetary">R$ 0,00</td><td>Varejo</td><td>Item Exemplo 2</td><td>(11) 90000-0002</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -966,22 +835,22 @@
               <div id="importStep3" style="display: none;">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
                   <div style="padding: 16px; border-radius: 10px; background: #E8F4EC; border: 1px solid #B5D9C4;">
-                    <div style="font-size: 11px; font-weight: 700; color: #1E503B; text-transform: uppercase;">Registros Válidos</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #348563; margin-top: 4px;">5 linhas</div>
-                    <div style="font-size: 12px; color: #1E503B; margin-top: 2px;">Prontos para inclusão imediata</div>
+                    <div style="font-size: 11px; font-weight: 700; color: #1E503B; text-transform: uppercase;">Estrutura do Arquivo</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #348563; margin-top: 4px;">Compatível</div>
+                    <div style="font-size: 12px; color: #1E503B; margin-top: 2px;">Colunas obrigatórias identificadas</div>
                   </div>
 
-                  <div style="padding: 16px; border-radius: 10px; background: #FEF3E2; border: 1px solid #F5C07A;">
-                    <div style="font-size: 11px; font-weight: 700; color: #92560A; text-transform: uppercase;">Pendências Detectadas</div>
-                    <div style="font-size: 24px; font-weight: 800; color: #D4831A; margin-top: 4px;">1 linha com aviso</div>
-                    <div style="font-size: 12px; color: #92560A; margin-top: 2px;">Celular fora do padrão (será cadastrado sem fone)</div>
+                  <div style="padding: 16px; border-radius: 10px; background: #E8F4EC; border: 1px solid #B5D9C4;">
+                    <div style="font-size: 11px; font-weight: 700; color: #1E503B; text-transform: uppercase;">Validação de Registros</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #348563; margin-top: 4px;">Validado</div>
+                    <div style="font-size: 12px; color: #1E503B; margin-top: 2px;">Dados prontos para processamento</div>
                   </div>
                 </div>
 
-                <div class="alert alert--warning" style="margin-bottom: 16px;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div class="alert alert--info" style="margin-bottom: 16px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                   <div>
-                    <strong>Linha 6 (João Souza):</strong> O telefone está incompleto. O cliente será cadastrado normalmente e o telefone poderá ser corrigido posteriormente.
+                    <strong>Auditoria Automática:</strong> O motor de importação confere a formatação de cada CPF, calcula o valor total de cashback e valida o vínculo com a empresa antes da geração do lote.
                   </div>
                 </div>
 
@@ -1000,7 +869,7 @@
 
                   <h3 style="font-size: 18px; font-weight: 800; color: var(--color-text-primary);">Confirmar geração do lote</h3>
                   <p style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.5;">
-                    Você está prestes a importar <strong>6 lançamentos</strong> totalizando <strong>R$ 1.500,00</strong> de cashback para a <strong>EMPRESA PADRÃO</strong>.
+                    Você está prestes a processar e gerar este lote de cashback para a sua empresa cadastrada.
                   </p>
 
                   <div style="display: flex; gap: 12px; margin-top: 14px;">
@@ -1054,9 +923,9 @@
           <div class="content-card">
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
               <div class="table-filter-bar" style="margin-bottom: 0;">
-                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (3)</button>
-                <button type="button" class="filter-chip" data-filter="pendente">Pendentes</button>
-                <button type="button" class="filter-chip" data-filter="active">Pagos</button>
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todos (0)</button>
+                <button type="button" class="filter-chip" data-filter="pendente">Pendentes (0)</button>
+                <button type="button" class="filter-chip" data-filter="active">Pagos (0)</button>
               </div>
 
               <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
@@ -1080,36 +949,12 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="td-code">#1042</td>
-                      <td>14/10/2026</td>
-                      <td><strong>SERVIÇOS DE TECNOLOGIA LTDA</strong></td>
-                      <td class="td-monetary">R$ 850,00</td>
-                      <td><span class="badge badge--warning">PENDENTE</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="showToast('Visualizando boleto #1042', 'info')">Ver</button>
-                        <button class="btn-table-action" onclick="showToast('Baixando PDF do boleto #1042', 'success')">PDF</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">#1041</td>
-                      <td>28/09/2026</td>
-                      <td><strong>DMX MARKETING ASSESSORIA</strong></td>
-                      <td class="td-monetary">R$ 1.200,00</td>
-                      <td><span class="badge badge--success">PAGO</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action">PDF</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">#1040</td>
-                      <td>15/09/2026</td>
-                      <td><strong>GRAFICA & IMPRESSOES EIRELI</strong></td>
-                      <td class="td-monetary">R$ 430,00</td>
-                      <td><span class="badge badge--success">PAGO</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action">PDF</button>
+                      <td colspan="6" style="text-align: center; padding: 48px 24px; color: var(--color-text-secondary);">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--neutral-400);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                          <span style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">Nenhum boleto registrado</span>
+                          <span style="font-size: 13px;">Quando novos boletos forem gerados ou integrados, eles serão listados aqui.</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -1118,7 +963,7 @@
             </div>
 
             <div class="pagination">
-              <span class="page-info">Página 1 de 1 (3 boletos)</span>
+              <span class="page-info">Página 1 de 1 (0 boletos)</span>
               <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
               </button>
@@ -1145,9 +990,9 @@
           <div class="content-card">
             <div style="padding: 14px 18px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: #FAFCFA;">
               <div class="table-filter-bar" style="margin-bottom: 0;">
-                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todas (3)</button>
-                <button type="button" class="filter-chip" data-filter="pendente">Pendentes</button>
-                <button type="button" class="filter-chip" data-filter="active">Conferidas</button>
+                <button type="button" class="filter-chip filter-chip--active" data-filter="all">Todas (0)</button>
+                <button type="button" class="filter-chip" data-filter="pendente">Pendentes (0)</button>
+                <button type="button" class="filter-chip" data-filter="active">Conferidas (0)</button>
               </div>
 
               <div class="input-search-wrap input-search-wrap--sm" style="width: 260px;">
@@ -1171,36 +1016,12 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="td-code">NF-e 4085</td>
-                      <td>04/10/2026</td>
-                      <td><strong>CONCESSIONÁRIA HONDA SÃO PAULO</strong></td>
-                      <td class="td-monetary">R$ 2.450,00</td>
-                      <td><span class="badge badge--warning">PENDENTE</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="showToast('Visualizando NF-e 4085', 'info')">Ver</button>
-                        <button class="btn-table-action" onclick="showToast('Baixando XML da NF-e', 'success')">XML</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">NF-e 4084</td>
-                      <td>03/10/2026</td>
-                      <td><strong>HONDA STORE BOUTIQUE EIRELI</strong></td>
-                      <td class="td-monetary">R$ 1.800,00</td>
-                      <td><span class="badge badge--success">CONFERIDA</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action">XML</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">NF-e 4083</td>
-                      <td>01/10/2026</td>
-                      <td><strong>BANCO HONDA SA</strong></td>
-                      <td class="td-monetary">R$ 950,00</td>
-                      <td><span class="badge badge--success">CONFERIDA</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action">XML</button>
+                      <td colspan="6" style="text-align: center; padding: 48px 24px; color: var(--color-text-secondary);">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--neutral-400);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                          <span style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">Nenhuma nota fiscal encontrada</span>
+                          <span style="font-size: 13px;">As notas fiscais importadas para conferência de cashback aparecerão aqui.</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -1209,7 +1030,7 @@
             </div>
 
             <div class="pagination">
-              <span class="page-info">Página 1 de 1 (3 notas)</span>
+              <span class="page-info">Página 1 de 1 (0 notas)</span>
               <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
               </button>
@@ -1225,7 +1046,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Lotes de Importação</h1>
-              <p class="page-subtitle">4 lote(s) &nbsp;·&nbsp; R$&nbsp;3.800,00 importado(s) &nbsp;·&nbsp; 5 cliente(s) novo(s)</p>
+              <p class="page-subtitle">0 lote(s) &nbsp;·&nbsp; R$&nbsp;0,00 importado(s) &nbsp;·&nbsp; 0 cliente(s) novo(s)</p>
             </div>
             <div style="display: flex; gap: 8px;">
               <button class="btn btn--secondary btn--md" onclick="navigateTo('importar')">
@@ -1239,108 +1060,19 @@
             </div>
           </div>
 
-          <!-- Cards de Lote com visual destacado e fundo verde suave -->
-          <div class="lot-cards-grid">
-
-            <!-- Lote 4 -->
-            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
-              <div class="lot-card-header">
-                <div>
-                  <div class="lot-card-number">Lote 4</div>
-                  <div class="lot-card-file">CashbackDaniel.xlsx · EMPRESA</div>
-                </div>
-                <span class="lot-card-date">04/10/2026 19:59</span>
-              </div>
-              <div class="lot-card-body">
-                <div class="lot-card-value">R$&nbsp;600,00</div>
-                <div class="lot-card-meta">1 de 1 lançamento(s)</div>
-                <div class="lot-card-progress-wrap">
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
-                  </div>
-                  <div class="lot-card-progress-labels">
-                    <span>Utilizado R$&nbsp;0,00</span>
-                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;600,00</span>
-                  </div>
-                </div>
-              </div>
+          <!-- Empty State Elegante para Lotes -->
+          <div class="content-card" style="padding: 60px 24px; text-align: center;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--brand-light); color: var(--brand-main); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
             </div>
-
-            <!-- Lote 3 -->
-            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
-              <div class="lot-card-header">
-                <div>
-                  <div class="lot-card-number">Lote 3</div>
-                  <div class="lot-card-file">CashbackDaniel.xlsx · EMPRESA</div>
-                </div>
-                <span class="lot-card-date">04/10/2026 19:53</span>
-              </div>
-              <div class="lot-card-body">
-                <div class="lot-card-value">R$&nbsp;600,00</div>
-                <div class="lot-card-meta">1 de 1 lançamento(s)</div>
-                <div class="lot-card-progress-wrap">
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
-                  </div>
-                  <div class="lot-card-progress-labels">
-                    <span>Utilizado R$&nbsp;0,00</span>
-                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;600,00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Lote 2 -->
-            <div class="lot-card" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
-              <div class="lot-card-header">
-                <div>
-                  <div class="lot-card-number">Lote 2</div>
-                  <div class="lot-card-file">Cashback.xlsx · EMPRESA</div>
-                </div>
-                <span class="lot-card-date">04/10/2026 19:49</span>
-              </div>
-              <div class="lot-card-body">
-                <div class="lot-card-value">R$&nbsp;1.300,00</div>
-                <div class="lot-card-meta">5 de 5 lançamento(s)</div>
-                <div class="lot-card-progress-wrap">
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
-                  </div>
-                  <div class="lot-card-progress-labels">
-                    <span>Utilizado R$&nbsp;0,00</span>
-                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;1.300,00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Lote 1 -->
-            <div class="lot-card lot-card--highlight" role="button" tabindex="0" onclick="navigateTo('lancamentos')">
-              <div class="lot-card-header">
-                <div>
-                  <div class="lot-card-number">Lote 1</div>
-                  <div class="lot-card-file">Cashback.xlsx · EMPRESA</div>
-                </div>
-                <span class="lot-card-date">04/10/2026 19:45</span>
-              </div>
-              <div class="lot-card-body">
-                <div class="lot-card-value">R$&nbsp;1.300,00</div>
-                <div class="lot-card-meta">
-                  5 de 5 lançamento(s) &nbsp;·&nbsp;
-                  <span class="badge badge--new-clients">5 cliente(s) novo(s)</span>
-                </div>
-                <div class="lot-card-progress-wrap">
-                  <div class="progress-bar">
-                    <div class="progress-fill" style="width: 0%"></div>
-                  </div>
-                  <div class="lot-card-progress-labels">
-                    <span>Utilizado R$&nbsp;0,00</span>
-                    <span style="color: var(--brand-main); font-weight: 700;">Disponível R$&nbsp;1.300,00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 6px;">Nenhum lote importado</h3>
+            <p style="font-size: 13px; color: var(--color-text-secondary); max-width: 440px; margin: 0 auto 20px; line-height: 1.5;">
+              Importe planilhas de compras ou cupons fiscais para gerar lotes de cashback e novos clientes no sistema.
+            </p>
+            <button class="btn btn--primary btn--md" onclick="navigateTo('importar')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+              Importar Primeiro Lote
+            </button>
           </div>
         </div>
       </div>
@@ -1370,10 +1102,10 @@
             <!-- Barra de Filtros Unificada -->
             <div class="record-filter-bar">
               <div class="record-chips">
-                <button type="button" class="record-chip record-chip--active" data-record-type="all">Todos os Registros (<span id="countRecAll">12</span>)</button>
-                <button type="button" class="record-chip" data-record-type="boleto">Boletos (<span id="countRecBoletos">4</span>)</button>
-                <button type="button" class="record-chip" data-record-type="nota">Notas (<span id="countRecNotas">4</span>)</button>
-                <button type="button" class="record-chip" data-record-type="lote">Lotes (<span id="countRecLotes">4</span>)</button>
+                <button type="button" class="record-chip record-chip--active" data-record-type="all">Todos os Registros (<span id="countRecAll">0</span>)</button>
+                <button type="button" class="record-chip" data-record-type="boleto">Boletos (<span id="countRecBoletos">0</span>)</button>
+                <button type="button" class="record-chip" data-record-type="nota">Notas (<span id="countRecNotas">0</span>)</button>
+                <button type="button" class="record-chip" data-record-type="lote">Lotes (<span id="countRecLotes">0</span>)</button>
               </div>
 
               <div class="record-inputs-row">
@@ -1450,7 +1182,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Empresas</h1>
-              <p class="page-subtitle">3 empresas cadastradas no sistema</p>
+              <p class="page-subtitle">0 empresas cadastradas no sistema</p>
             </div>
             <button class="btn btn--primary btn--md" id="btnNovaEmpresa">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1485,48 +1217,12 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td data-label="Código" class="td-code">3</td>
-                      <td data-label="Fantasia"><strong>DMX MARKETING</strong></td>
-                      <td data-label="Fone">11975-1942</td>
-                      <td data-label="Email">contato@dmxmarketing.com</td>
-                      <td data-label="CEP">03949-000</td>
-                      <td data-label="Endereço">AV PAULISTA</td>
-                      <td data-label="Nº" class="td-center">726</td>
-                      <td data-label="Cidade">SÃO PAULO</td>
-                      <td data-label="UF">SP</td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action" onclick="showToast('Visualizando DMX MARKETING', 'info')">Ver</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'DMX MARKETING')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">2</td>
-                      <td data-label="Fantasia"><strong>ONLY TEST: DO NOT USE!</strong></td>
-                      <td data-label="Fone">—</td>
-                      <td data-label="Email">—</td>
-                      <td data-label="CEP">—</td>
-                      <td data-label="Endereço">—</td>
-                      <td data-label="Nº" class="td-center">—</td>
-                      <td data-label="Cidade">FORTALEZA</td>
-                      <td data-label="UF">CE</td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'ONLY TEST')">Excluir</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td data-label="Código" class="td-code">1</td>
-                      <td data-label="Fantasia"><strong>EMPRESA PADRÃO</strong></td>
-                      <td data-label="Fone">99862-1405</td>
-                      <td data-label="Email">contato@empresapadrao.com</td>
-                      <td data-label="CEP">—</td>
-                      <td data-label="Endereço">—</td>
-                      <td data-label="Nº" class="td-center">12</td>
-                      <td data-label="Cidade">FORTALEZA</td>
-                      <td data-label="UF">CE</td>
-                      <td data-label="Ações" class="td-right">
-                        <button class="btn-table-action">Ver</button>
-                        <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('empresa', 'EMPRESA PADRÃO')">Excluir</button>
+                      <td colspan="10" style="text-align: center; padding: 48px 24px; color: var(--color-text-secondary);">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--neutral-400);"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+                          <span style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">Nenhuma empresa cadastrada</span>
+                          <span style="font-size: 13px;">Cadastre uma empresa para gerenciar parâmetros e emitentes do cashback.</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -1535,7 +1231,7 @@
             </div>
 
             <div class="pagination">
-              <span class="page-info">Página 1 de 1 (3 empresas)</span>
+              <span class="page-info">Página 1 de 1 (0 empresas)</span>
               <button class="page-btn page-btn--refresh" data-action="refresh" title="Atualizar">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
               </button>
@@ -1574,10 +1270,10 @@
                   </thead>
                   <tbody>
                     <tr class="row--selected">
-                      <td data-label="Código" class="td-code">2</td>
+                      <td data-label="Código" class="td-code">1</td>
                       <td data-label="Status"><span class="badge badge--success">active</span></td>
-                      <td data-label="Nome"><strong>LEME</strong> (Você)</td>
-                      <td data-label="Login">leme@lemesys.com</td>
+                      <td data-label="Nome"><strong>Administrador</strong> (Você)</td>
+                      <td data-label="Login">admin@empresa.com.br</td>
                       <td data-label="Ações" class="td-right">
                         <button class="btn-table-action" onclick="openModal('modalSettings')">Editar</button>
                       </td>
@@ -1597,6 +1293,22 @@
       <!-- ─── SCREEN: COMUNICAÇÃO E E-MAILS (Admin) ────────── -->
       <div class="screen admin-only" id="screen-comunicacao">
         <div class="page-content">
+
+          <!-- Bloqueio de Acesso para Usuários Não-Administradores -->
+          <div id="comunicacaoAccessDenied" class="access-denied-box" style="display: none; margin: 40px auto; max-width: 540px;">
+            <div class="access-denied-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h2 class="access-denied-title">Acesso Restrito ao Administrador</h2>
+            <p class="access-denied-desc">
+              Esta área de configuração de mensageria institucional e modelos de e-mail é de uso exclusivo de administradores gerais da plataforma DMX CashBack.
+            </p>
+            <button class="btn btn--primary btn--md" onclick="navigateTo('dashboard')">
+              Voltar ao Início
+            </button>
+          </div>
+
+          <div id="comunicacaoMainView">
           <div class="page-header">
             <div>
               <h1 class="page-title">Comunicação e E-mails</h1>
@@ -1706,15 +1418,15 @@
                 </div>
 
                 <div class="email-preview-body">
-                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
-                  <p style="margin-bottom: 14px;">Temos uma ótima notícia! Um novo crédito de cashback foi registrado com sucesso em sua conta na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  <p style="margin-bottom: 12px;">Olá, <strong>[Nome do Cliente]</strong>,</p>
+                  <p style="margin-bottom: 14px;">Temos uma ótima notícia! Um novo crédito de cashback foi registrado com sucesso em sua conta na <strong>[Nome da Empresa]</strong>.</p>
                   
                   <div class="email-preview-highlight-box">
                     <div style="font-size: 12px; text-transform: uppercase; color: var(--brand-dark); font-weight: 700; margin-bottom: 4px;">Detalhes do Crédito</div>
-                    <div style="font-size: 26px; font-weight: 800; color: var(--brand-main); margin-bottom: 6px;">+ R$ 45,00</div>
+                    <div style="font-size: 26px; font-weight: 800; color: var(--brand-main); margin-bottom: 6px;">+ [Valor do Cashback]</div>
                     <div style="font-size: 13px; color: var(--neutral-700); line-height: 1.5;">
-                      <strong>Data do Registro:</strong> 13/10/2026 às 14:15<br />
-                      <strong>Origem da Compra:</strong> Cupom Fiscal #77841<br />
+                      <strong>Data do Registro:</strong> [Data do Registro]<br />
+                      <strong>Origem da Compra:</strong> Cupom Fiscal #[Número]<br />
                       <strong>Condições de Uso:</strong> Válido para abatimento em compras futuras na loja participante.
                     </div>
                   </div>
@@ -1728,7 +1440,7 @@
                 <div class="email-preview-footer">
                   <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
                   Este é um e-mail transacional automático. Por gentileza, não responda diretamente a esta mensagem.<br />
-                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                  [Nome da Empresa] · Em conformidade com a LGPD
                 </div>
               </div>
 
@@ -1743,8 +1455,8 @@
                 </div>
 
                 <div class="email-preview-body">
-                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
-                  <p style="margin-bottom: 14px;">Você acaba de receber acesso exclusivo ao <strong>DMX CashBack</strong> através da sua compra na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  <p style="margin-bottom: 12px;">Olá, <strong>[Nome do Cliente]</strong>,</p>
+                  <p style="margin-bottom: 14px;">Você acaba de receber acesso exclusivo ao <strong>DMX CashBack</strong> através da sua compra na <strong>[Nome da Empresa]</strong>.</p>
                   
                   <div class="email-preview-highlight-box" style="background: #E8F4EC; border-left-color: var(--brand-main);">
                     <div style="font-size: 12px; text-transform: uppercase; color: var(--brand-dark); font-weight: 700; margin-bottom: 4px;">Instruções de Acesso Seguro</div>
@@ -1765,7 +1477,7 @@
                 <div class="email-preview-footer">
                   <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
                   Mensagem de ativação de conta. Em caso de dúvidas, consulte nossa equipe de atendimento.<br />
-                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                  [Nome da Empresa] · Em conformidade com a LGPD
                 </div>
               </div>
 
@@ -1780,23 +1492,23 @@
                 </div>
 
                 <div class="email-preview-body">
-                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
-                  <p style="margin-bottom: 14px;">Registramos uma nova movimentação em seu saldo de cashback na <strong>LEME CALÇADOS LTDA</strong>.</p>
+                  <p style="margin-bottom: 12px;">Olá, <strong>[Nome do Cliente]</strong>,</p>
+                  <p style="margin-bottom: 14px;">Registramos uma nova movimentação em seu saldo de cashback na <strong>[Nome da Empresa]</strong>.</p>
                   
                   <div class="email-preview-highlight-box" style="background: #FEF3E2; border-left-color: #D4831A;">
                     <div style="font-size: 12px; text-transform: uppercase; color: #92560A; font-weight: 700; margin-bottom: 4px;">Resumo da Movimentação</div>
                     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
                       <div>
                         <div style="font-size: 11px; color: var(--neutral-600);">Operação Realizada:</div>
-                        <div style="font-size: 18px; font-weight: 700; color: #C0392B;">- R$ 30,00 (Resgate no Caixa)</div>
+                        <div style="font-size: 18px; font-weight: 700; color: #C0392B;">-[Valor do Resgate] (Resgate no Caixa)</div>
                       </div>
                       <div style="text-align: right;">
                         <div style="font-size: 11px; color: var(--neutral-600);">Novo Saldo Disponível:</div>
-                        <div style="font-size: 24px; font-weight: 800; color: var(--brand-main);">R$ 85,00</div>
+                        <div style="font-size: 24px; font-weight: 800; color: var(--brand-main);">[Saldo Disponível]</div>
                       </div>
                     </div>
                     <div style="font-size: 12px; color: var(--neutral-700); border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px;">
-                      <strong>Data da Movimentação:</strong> 10/10/2026 às 16:40 · Terminal Loja Centro
+                      <strong>Data da Movimentação:</strong> [Data da Movimentação]
                     </div>
                   </div>
 
@@ -1811,7 +1523,7 @@
                 <div class="email-preview-footer">
                   <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
                   Mensagem institucional confidencial e intransferível. Prevenção ativa contra disparos duplicados.<br />
-                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                  [Nome da Empresa] · Em conformidade com a LGPD
                 </div>
               </div>
 
@@ -1826,15 +1538,15 @@
                 </div>
 
                 <div class="email-preview-body">
-                  <p style="margin-bottom: 12px;">Olá, <strong>Roberto Carlos</strong>,</p>
+                  <p style="margin-bottom: 12px;">Olá, <strong>[Nome do Cliente]</strong>,</p>
                   <p style="margin-bottom: 14px;">Identificamos créditos de cashback em sua conta que estão próximos da data limite de expiração:</p>
                   
                   <div class="email-preview-highlight-box" style="background: #FFFDF5; border-left-color: #F59E0B;">
                     <div style="font-size: 12px; text-transform: uppercase; color: #B45309; font-weight: 700; margin-bottom: 4px;">Saldo Próximo do Vencimento</div>
-                    <div style="font-size: 26px; font-weight: 800; color: #D97706; margin-bottom: 6px;">R$ 15,00</div>
+                    <div style="font-size: 26px; font-weight: 800; color: #D97706; margin-bottom: 6px;">[Valor a Expirar]</div>
                     <div style="font-size: 13px; color: var(--neutral-700); line-height: 1.5;">
-                      <strong>Data Limite Registrada no Sistema:</strong> 28/10/2026<br />
-                      <strong>Estabelecimento:</strong> Farmácia Vida & Saúde<br />
+                      <strong>Data Limite Registrada no Sistema:</strong> [Data de Expiração]<br />
+                      <strong>Estabelecimento:</strong> [Nome do Estabelecimento]<br />
                       <strong>Ação recomendada:</strong> Realize uma compra na loja parceira antes da data limite para aproveitar o desconto.
                     </div>
                   </div>
@@ -1848,7 +1560,7 @@
                 <div class="email-preview-footer">
                   <strong>DMX CashBack — Programa de Fidelidade e Vantagens</strong><br />
                   Aviso preventivo automático de validade de créditos emitidos conforme o regulamento da campanha.<br />
-                  LEME CALÇADOS LTDA · Em conformidade com a LGPD
+                  [Nome da Empresa] · Em conformidade com a LGPD
                 </div>
               </div>
 
@@ -1882,43 +1594,12 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="td-code">#EML-9821</td>
-                      <td><strong>Roberto Carlos</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">roberto.carlos@email.com</span></td>
-                      <td>Crédito de Cashback (R$ 45,00)</td>
-                      <td>13/10/2026 14:15</td>
-                      <td><span class="badge badge--success">Enviado</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="viewEmailInQueue('EML-9821')">Ver E-mail</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">#EML-9822</td>
-                      <td><strong>Juliana Mendes</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">juliana.mendes@email.com</span></td>
-                      <td>Atualização do Saldo (R$ 80,00)</td>
-                      <td>13/10/2026 15:30</td>
-                      <td><span class="badge badge--success">Enviado</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="viewEmailInQueue('EML-9822')">Ver E-mail</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">#EML-9823</td>
-                      <td><strong>Marcos Souza</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">marcos.souza@provedor.com</span></td>
-                      <td>Crédito de Cashback (R$ 130,00)</td>
-                      <td>13/10/2026 15:45</td>
-                      <td><span class="badge badge--warning">Pendente</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="simulateResend('EML-9823')">Forçar Envio</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="td-code">#EML-9820</td>
-                      <td><strong>Ana Paula Silva</strong><br /><span style="font-size: 12px; color: var(--neutral-600);">ana.paula@dominio-invalido.xyz</span></td>
-                      <td>Crédito de Cashback (R$ 60,00)</td>
-                      <td>12/10/2026 18:00</td>
-                      <td><span class="badge badge--error">Falha</span></td>
-                      <td class="td-right">
-                        <button class="btn-table-action" onclick="simulateResend('EML-9820')">Tentar Novamente</button>
+                      <td colspan="6" style="text-align: center; padding: 48px 24px; color: var(--color-text-secondary);">
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--neutral-400);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                          <span style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">Nenhum envio registrado na fila</span>
+                          <span style="font-size: 13px;">Os e-mails transacionais disparados aos clientes serão registrados aqui em tempo real.</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -1927,10 +1608,11 @@
             </div>
 
             <div class="pagination">
-              <span class="page-info">4 envios registrados na sessão</span>
+              <span class="page-info">0 envios registrados na sessão</span>
             </div>
           </div>
 
+          </div> <!-- /comunicacaoMainView -->
         </div>
       </div>
       <!-- /SCREEN COMUNICAÇÃO E E-MAILS -->
@@ -2005,7 +1687,7 @@
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
         <div class="input-group">
           <label class="input-label">Cliente Selecionado <span class="required-mark">*</span></label>
-          <input type="text" class="input" placeholder="Buscar por nome ou CPF..." value="ANA RODRIGUES" required />
+          <input type="text" class="input" placeholder="Buscar por nome ou CPF..." value="" required />
         </div>
 
         <div class="form-grid-2">
@@ -2107,11 +1789,11 @@
         <div style="display: flex; flex-direction: column; gap: 14px;">
           <div class="input-group">
             <label class="input-label">Nome do Usuário</label>
-            <input type="text" class="input" value="LEME" />
+            <input type="text" class="input" value="Administrador" />
           </div>
           <div class="input-group">
             <label class="input-label">E-Mail</label>
-            <input type="email" class="input" value="leme@lemesys.com" />
+            <input type="email" class="input" value="admin@empresa.com.br" />
           </div>
           <div class="input-group">
             <label class="input-label">Perfil de Acesso</label>
@@ -2431,15 +2113,15 @@
       <div class="payments-summary-card">
         <div class="payments-metric-item">
           <div class="payments-metric-label">Total Liquidado</div>
-          <div class="payments-metric-value" style="color: var(--brand-main);">R$ 4.250,00</div>
+          <div class="payments-metric-value" style="color: var(--brand-main);" id="paySummaryTotal">R$ 0,00</div>
         </div>
         <div class="payments-metric-item">
           <div class="payments-metric-label">Pagamentos Pendentes</div>
-          <div class="payments-metric-value" style="color: #D4831A;">R$ 850,00</div>
+          <div class="payments-metric-value" style="color: #D4831A;" id="paySummaryPending">R$ 0,00</div>
         </div>
         <div class="payments-metric-item">
           <div class="payments-metric-label">Operações Realizadas</div>
-          <div class="payments-metric-value">6 transações</div>
+          <div class="payments-metric-value" id="paySummaryCount">0 transações</div>
         </div>
       </div>
 

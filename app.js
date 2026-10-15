@@ -17,24 +17,14 @@ const state = {
   fabOpen: false,
   notifOpen: false,
   dmxAssistOpen: false,
-  authenticated: true, // demonstrativo
-  selectedCompany: 'EMPRESA PADRÃO',
-  currentUser: {
-    name: 'Daniel Leme',
-    email: 'leme@lemesys.com',
-    companies: ['EMPRESA PADRÃO', 'DMX MARKETING', 'ONLY TEST: DO NOT USE!']
-  },
+  authenticated: false,
+  selectedCompany: 'DMX CashBack',
+  currentUser: null,
   selectedImportFile: null,
   currentCalDate: new Date(),
   selectedCalDay: new Date().getDate(),
   calEvents: [],
-  paymentsList: [
-    { id: 'PAG-2026-8812', date: '12/10/2026', desc: 'Liquidação de Cashback — Lote 1', method: 'PIX', value: 'R$ 1.300,00', status: 'Confirmado', statusClass: 'success' },
-    { id: 'PAG-2026-8811', date: '10/10/2026', desc: 'Repasse Parceiro Lote 4', method: 'Transferência TED', value: 'R$ 600,00', status: 'Confirmado', statusClass: 'success' },
-    { id: 'PAG-2026-8810', date: '08/10/2026', desc: 'Taxa de Processamento Mensal', method: 'Boleto Bancário', value: 'R$ 850,00', status: 'Pendente', statusClass: 'warning' },
-    { id: 'PAG-2026-8809', date: '04/10/2026', desc: 'Crédito Promocional Campanha', method: 'PIX', value: 'R$ 1.500,00', status: 'Confirmado', statusClass: 'success' },
-    { id: 'PAG-2026-8808', date: '01/10/2026', desc: 'Fatura de Plataforma DMX', method: 'Boleto Bancário', value: 'R$ 850,00', status: 'Confirmado', statusClass: 'success' }
-  ],
+  paymentsList: [],
   isAdminMode: true,
   importStep: 1,
   activeEmailTemplate: 'credito',
@@ -59,294 +49,8 @@ const state = {
       ]
     }
   ],
-  notifications: [
-    {
-      id: 1,
-      category: 'cashback',
-      type: 'info',
-      title: 'Crédito de Cashback Registrado',
-      desc: 'Crédito de R$ 45,00 registrado com sucesso para o cliente Roberto Carlos (Cupom #77841).',
-      time: 'Hoje, 14:15',
-      unread: true,
-      page: 'lancamentos'
-    },
-    {
-      id: 2,
-      category: 'import',
-      type: 'success',
-      title: 'Importação de Planilha Concluída',
-      desc: 'Lote 4 processado com sucesso: 5 novos lançamentos e 5 novos clientes cadastrados.',
-      time: 'Hoje, 11:30',
-      unread: true,
-      page: 'lotes'
-    },
-    {
-      id: 3,
-      category: 'import',
-      type: 'error',
-      title: 'Falha na Importação — Lote 5',
-      desc: 'Inconsistência na linha 14: CPF inválido e valor zerado. 2 registros pendentes de correção.',
-      time: 'Ontem, 16:45',
-      unread: true,
-      page: 'importar'
-    },
-    {
-      id: 4,
-      category: 'cashback',
-      type: 'info',
-      title: 'Lançamento de Cashback Atualizado',
-      desc: 'Lançamento #LAN-8902 ajustado pelo operador: valor de compra atualizado para R$ 350,00.',
-      time: 'Ontem, 09:20',
-      unread: true,
-      page: 'lancamentos'
-    },
-    {
-      id: 5,
-      category: 'cashback',
-      type: 'alert',
-      title: 'Cashback Próximo do Vencimento',
-      desc: 'R$ 180,00 em créditos do Lote 1 expiram em 5 dias. 4 clientes notificados preventivamente.',
-      time: '11/10/2026, 17:00',
-      unread: true,
-      page: 'lotes'
-    },
-    {
-      id: 6,
-      category: 'financial',
-      type: 'alert',
-      title: 'Boleto #1042 Vence Amanhã',
-      desc: 'R$ 850,00 referente à taxa de processamento mensal de cashback.',
-      time: '10/10/2026, 10:00',
-      unread: false,
-      page: 'boletos'
-    },
-    {
-      id: 7,
-      category: 'system',
-      type: 'system',
-      title: 'Atualização do Sistema v.8.5.0.2',
-      desc: 'Novas ferramentas de Consulta de Registros, DMX Assist e envio de e-mails ativas.',
-      time: '09/10/2026, 08:00',
-      unread: false,
-      page: 'dashboard'
-    }
-  ],
-  records: [
-    {
-      id: 1,
-      code: '#BOL-2026-1042',
-      type: 'boleto',
-      typeName: 'Boleto',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '13/10/2026',
-      value: 'R$ 850,00',
-      status: 'Aberto',
-      statusClass: 'warning',
-      hasAttachment: true,
-      attachmentName: 'Boleto_1042_Bradesco.pdf',
-      description: 'Fatura de processamento mensal de cashback — Outubro/2026',
-      history: [
-        { date: '10/10/2026 09:00', text: 'Boleto bancário gerado pelo sistema' },
-        { date: '10/10/2026 09:05', text: 'Registro confirmado no banco emissor (Bradesco)' },
-        { date: '13/10/2026 08:30', text: 'Alerta preventivo de vencimento enviado por e-mail' }
-      ]
-    },
-    {
-      id: 2,
-      code: '#BOL-2026-1041',
-      type: 'boleto',
-      typeName: 'Boleto',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '15/09/2026',
-      value: 'R$ 850,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Comprovante_Liquidacao_1041.pdf',
-      description: 'Fatura de processamento mensal de cashback — Setembro/2026',
-      history: [
-        { date: '10/09/2026 08:45', text: 'Boleto bancário gerado' },
-        { date: '15/09/2026 14:22', text: 'Pagamento identificado via CIP/Compensação' },
-        { date: '15/09/2026 14:25', text: 'Fatura liquidada com sucesso' }
-      ]
-    },
-    {
-      id: 3,
-      code: '#BOL-2026-1040',
-      type: 'boleto',
-      typeName: 'Boleto',
-      entity: 'DMX MARKETING',
-      date: '10/08/2026',
-      value: 'R$ 1.200,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Comprovante_1040.pdf',
-      description: 'Taxa operacional e licença corporativa DMX',
-      history: [
-        { date: '05/08/2026 10:15', text: 'Boleto gerado' },
-        { date: '10/08/2026 11:30', text: 'Liquidado na rede bancária' }
-      ]
-    },
-    {
-      id: 4,
-      code: '#BOL-2026-1039',
-      type: 'boleto',
-      typeName: 'Boleto',
-      entity: 'ONLY TEST',
-      date: '01/07/2026',
-      value: 'R$ 350,00',
-      status: 'Vencido',
-      statusClass: 'error',
-      hasAttachment: false,
-      attachmentName: null,
-      description: 'Boleto de homologação em ambiente de testes',
-      history: [
-        { date: '01/07/2026 09:00', text: 'Emitido para testes' },
-        { date: '05/07/2026 23:59', text: 'Prazo limite expirado sem compensação' }
-      ]
-    },
-    {
-      id: 5,
-      code: '#NF-00892',
-      type: 'nota',
-      typeName: 'Nota Fiscal',
-      entity: 'Roberto Carlos',
-      date: '13/10/2026',
-      value: 'R$ 450,00',
-      status: 'Conciliado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Danfe_NFe_00892.pdf',
-      description: 'Compra de calçados masculinos — Cupom Fiscal #77841 vinculado',
-      history: [
-        { date: '13/10/2026 14:10', text: 'NF-e emitida pelo PDV Loja Centro' },
-        { date: '13/10/2026 14:15', text: 'Crédito de 10% (R$ 45,00) registrado via DMX CashBack' }
-      ]
-    },
-    {
-      id: 6,
-      code: '#NF-00891',
-      type: 'nota',
-      typeName: 'Nota Fiscal',
-      entity: 'Juliana Mendes',
-      date: '13/10/2026',
-      value: 'R$ 280,00',
-      status: 'Conciliado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Danfe_NFe_00891.pdf',
-      description: 'Venda presencial com utilização de cashback',
-      history: [
-        { date: '13/10/2026 15:25', text: 'NF-e autorizada pela SEFAZ' },
-        { date: '13/10/2026 15:30', text: 'Abatimento de R$ 40,00 resgatado' }
-      ]
-    },
-    {
-      id: 7,
-      code: '#NF-00890',
-      type: 'nota',
-      typeName: 'Nota Fiscal',
-      entity: 'Marcos Souza',
-      date: '12/10/2026',
-      value: 'R$ 650,00',
-      status: 'Conciliado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Danfe_NFe_00890.pdf',
-      description: 'Venda com cashback registrado no Lote 4',
-      history: [
-        { date: '12/10/2026 11:20', text: 'NF-e transmitida com sucesso' }
-      ]
-    },
-    {
-      id: 8,
-      code: '#NF-00889',
-      type: 'nota',
-      typeName: 'Nota Fiscal',
-      entity: 'Ana Paula Silva',
-      date: '10/10/2026',
-      value: 'R$ 190,00',
-      status: 'Aberto',
-      statusClass: 'warning',
-      hasAttachment: false,
-      attachmentName: null,
-      description: 'Nota pendente de conciliação com a planilha mensal',
-      history: [
-        { date: '10/10/2026 16:40', text: 'Nota fiscal lançada no PDV' },
-        { date: '10/10/2026 16:45', text: 'Aguardando validação do lote correspondente' }
-      ]
-    },
-    {
-      id: 9,
-      code: '#LOT-2026-04',
-      type: 'lote',
-      typeName: 'Lote Cashback',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '13/10/2026',
-      value: 'R$ 1.300,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Planilha_Importacao_Lote4.xlsx',
-      description: 'Lote importado via planilha — 5 lançamentos e 5 clientes novos',
-      history: [
-        { date: '13/10/2026 11:15', text: 'Arquivo Planilha_Importacao_Lote4.xlsx enviado' },
-        { date: '13/10/2026 11:30', text: 'Lote processado e créditos distribuídos aos clientes' }
-      ]
-    },
-    {
-      id: 10,
-      code: '#LOT-2026-03',
-      type: 'lote',
-      typeName: 'Lote Cashback',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '05/10/2026',
-      value: 'R$ 200,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Planilha_Lote3.xlsx',
-      description: 'Campanha de Primavera — 1 lançamento processado',
-      history: [
-        { date: '05/10/2026 14:00', text: 'Lote importado e auditado' }
-      ]
-    },
-    {
-      id: 11,
-      code: '#LOT-2026-02',
-      type: 'lote',
-      typeName: 'Lote Cashback',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '20/09/2026',
-      value: 'R$ 1.000,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Planilha_Lote2.xlsx',
-      description: 'Campanha de Aniversário — 1 lançamento processado',
-      history: [
-        { date: '20/09/2026 10:00', text: 'Lote aprovado e distribuído' }
-      ]
-    },
-    {
-      id: 12,
-      code: '#LOT-2026-01',
-      type: 'lote',
-      typeName: 'Lote Cashback',
-      entity: 'LEME CALÇADOS LTDA',
-      date: '01/09/2026',
-      value: 'R$ 1.300,00',
-      status: 'Liquidado',
-      statusClass: 'success',
-      hasAttachment: true,
-      attachmentName: 'Planilha_Lote1_Inicial.xlsx',
-      description: 'Lote inaugural do programa DMX CashBack — 90% do saldo utilizado',
-      history: [
-        { date: '01/09/2026 09:00', text: 'Lançamento inicial do programa de cashback' }
-      ]
-    }
-  ]
+  notifications: [],
+  records: []
 };
 
 /* ── Page Map ────────────────────────────────────────── */
@@ -502,6 +206,20 @@ function navigateTo(pageId) {
     topbarCurrent.textContent = page.label;
   }
 
+  // Verificação de permissão para telas administrativas (ex: Comunicação e E-mails)
+  if (pageId === 'comunicacao') {
+    const deniedBox = document.getElementById('comunicacaoAccessDenied');
+    const mainView = document.getElementById('comunicacaoMainView');
+    if (!state.isAdminMode) {
+      if (deniedBox) deniedBox.style.display = 'block';
+      if (mainView) mainView.style.display = 'none';
+      showToast('Acesso restrito: configuração institucional exclusiva para Administrador.', 'warning');
+    } else {
+      if (deniedBox) deniedBox.style.display = 'none';
+      if (mainView) mainView.style.display = 'block';
+    }
+  }
+
   // Scroll suave ao topo da página
   document.querySelector('.page-wrapper')?.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -646,10 +364,11 @@ function initNotifications() {
 /* ── Banco de Contas e Isolamento Multiusuário ─────────── */
 function getAccountsDB() {
   const defaultAccounts = {
-    'leme@lemesys.com': {
-      name: 'Daniel Leme',
-      email: 'leme@lemesys.com',
-      companies: ['EMPRESA PADRÃO', 'DMX MARKETING', 'ONLY TEST: DO NOT USE!']
+    'admin@empresa.com.br': {
+      name: 'Administrador',
+      email: 'admin@empresa.com.br',
+      role: 'admin',
+      companies: []
     }
   };
 
@@ -657,9 +376,8 @@ function getAccountsDB() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      // Garantir que a conta demonstrativa inicial existe
-      if (!parsed['leme@lemesys.com']) {
-        parsed['leme@lemesys.com'] = defaultAccounts['leme@lemesys.com'];
+      if (!parsed['admin@empresa.com.br']) {
+        parsed['admin@empresa.com.br'] = defaultAccounts['admin@empresa.com.br'];
       }
       return parsed;
     } catch (e) {
@@ -685,12 +403,13 @@ function updateCompanyAndUserDisplay() {
   }
 
   if (userDisplay) {
-    userDisplay.textContent = state.currentUser?.name || 'Usuário Autenticado';
+    userDisplay.textContent = state.currentUser?.name || 'Administrador';
   }
 
-  if (avatarDisplay && state.currentUser?.name) {
-    const initials = state.currentUser.name.trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-    avatarDisplay.innerHTML = `<span style="font-weight:700; font-size:12px;">${initials || 'US'}</span>`;
+  if (avatarDisplay) {
+    const userName = state.currentUser?.name || 'Administrador';
+    const initials = userName.trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    avatarDisplay.innerHTML = `<span style="font-weight:700; font-size:12px;">${initials || 'AD'}</span>`;
   }
 }
 
@@ -707,27 +426,44 @@ function initAuth() {
   const removeSavedBtn = document.getElementById('removeSavedAccount');
   const useAnotherBtn = document.getElementById('useAnotherAccount');
 
-  // Inicializar dados do usuário inicial
-  const db = getAccountsDB();
-  const saved = localStorage.getItem('dmx_saved_account');
+  // 1. Verificar sessão ativa no sessionStorage (fecha com a aba/janela)
+  const sessionRaw = sessionStorage.getItem('dmx_admin_session');
+  if (sessionRaw) {
+    try {
+      const session = JSON.parse(sessionRaw);
+      if (session && session.authenticated && session.user) {
+        state.authenticated = true;
+        state.currentUser = session.user;
+        state.selectedCompany = session.user.companies?.[0] || 'DMX CashBack';
+        state.isAdminMode = session.user.role === 'admin' || true;
+        if (authOverlay) authOverlay.style.display = 'none';
+      }
+    } catch (e) {
+      sessionStorage.removeItem('dmx_admin_session');
+    }
+  }
 
+  // Se não autenticado, garantir exibição da tela de login
+  if (!state.authenticated && authOverlay) {
+    authOverlay.style.display = 'flex';
+  }
+
+  // 2. Verificar conta lembrada neste dispositivo (apenas e-mail)
+  const saved = localStorage.getItem('dmx_saved_account');
   if (saved && savedAccountBox) {
     try {
       const data = JSON.parse(saved);
-      if (db[data.email]) {
+      if (data.email) {
         savedAccountBox.style.display = 'flex';
-        document.getElementById('savedNameDisplay').textContent = data.name;
+        document.getElementById('savedNameDisplay').textContent = data.name || data.email;
         document.getElementById('savedEmailDisplay').textContent = data.email;
-        document.getElementById('loginEmail').value = data.email;
-        state.currentUser = db[data.email];
-        state.selectedCompany = state.currentUser.companies[0] || 'Empresa Principal';
+        const emailInput = document.getElementById('loginEmail');
+        if (emailInput) emailInput.value = data.email;
+        if (rememberCheckbox) rememberCheckbox.checked = true;
       }
     } catch (e) {
       localStorage.removeItem('dmx_saved_account');
     }
-  } else {
-    state.currentUser = db['leme@lemesys.com'];
-    state.selectedCompany = state.currentUser.companies[0];
   }
 
   updateCompanyAndUserDisplay();
@@ -786,7 +522,16 @@ function initAuth() {
         saveAccountsDB(currentDb);
       }
 
+      state.authenticated = true;
       state.currentUser = userAccount;
+      state.isAdminMode = userAccount.role === 'admin' || userAccount.email.includes('admin');
+
+      // Salvar sessão no sessionStorage (expira ao fechar aba/janela)
+      sessionStorage.setItem('dmx_admin_session', JSON.stringify({
+        authenticated: true,
+        user: userAccount,
+        timestamp: Date.now()
+      }));
 
       // Lembrar conta com segurança (sem armazenar senha!)
       if (rememberCheckbox?.checked) {
@@ -885,7 +630,16 @@ function initAuth() {
 
       currentDb[email] = newAccount;
       saveAccountsDB(currentDb);
+      state.authenticated = true;
       state.currentUser = newAccount;
+      state.isAdminMode = true;
+
+      // Salvar sessão no sessionStorage (expira ao fechar aba/janela)
+      sessionStorage.setItem('dmx_admin_session', JSON.stringify({
+        authenticated: true,
+        user: newAccount,
+        timestamp: Date.now()
+      }));
 
       // Limpar formulário de cadastro
       registerForm.reset();
@@ -952,10 +706,15 @@ function openCompanySelector() {
 }
 
 function logout() {
+  sessionStorage.removeItem('dmx_admin_session');
+  state.authenticated = false;
+  state.currentUser = null;
   const authOverlay = document.getElementById('authOverlay');
   if (authOverlay) {
     authOverlay.style.display = 'flex';
   }
+  showToast('Sessão encerrada com sucesso.', 'info');
+}
   showToast('Sessão encerrada com sucesso. Você pode alternar de conta.', 'info');
 }
 
@@ -1861,6 +1620,12 @@ function initPaymentsHistory() {
   let currentStatus = 'all';
 
   window.renderPaymentsTable = () => {
+    const elTotal = document.getElementById('paySummaryTotal');
+    const elPending = document.getElementById('paySummaryPending');
+    const elCount = document.getElementById('paySummaryCount');
+    if (elTotal) elTotal.textContent = 'R$ 0,00';
+    if (elPending) elPending.textContent = 'R$ 0,00';
+    if (elCount) elCount.textContent = `${state.paymentsList.length} transações`;
     if (!tableBody) return;
     const query = searchInput?.value.trim().toLowerCase() || '';
 
@@ -2365,15 +2130,15 @@ function initComunicacaoEmails() {
         <div style="background: white; border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;">
           <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px; border-bottom: 1px solid var(--color-border); padding-bottom: 10px;">
             <strong>De:</strong> DMX CashBack &lt;institucional@empresa.com.br&gt;<br>
-            <strong>Para:</strong> Roberto Carlos &lt;roberto.carlos@email.com&gt;<br>
+            <strong>Para:</strong> [Nome do Cliente] &lt;[E-mail do Cliente]&gt;<br>
             <strong>Data:</strong> 13/10/2026 às 14:15 · <em>Entregue com sucesso</em>
           </div>
           <h4 style="font-size: 16px; color: var(--brand-dark); font-weight: 700; margin-bottom: 8px;">DMX CashBack | Crédito de cashback registrado</h4>
-          <p style="font-size: 13px; line-height: 1.6; margin-bottom: 12px;">Olá, Roberto Carlos, informamos que seu crédito de R$ 45,00 foi lançado com sucesso.</p>
+          <p style="font-size: 13px; line-height: 1.6; margin-bottom: 12px;">Olá, [Nome do Cliente], informamos que seu crédito de [Valor do Cashback] foi registrado com sucesso.</p>
           <div style="background: #E8F4EC; padding: 12px; border-radius: 6px; font-weight: 700; color: var(--brand-main); margin-bottom: 12px;">
-            Valor Creditado: R$ 45,00 · Validade: 90 dias
+            Valor Creditado: [Valor do Cashback] · Validade: Conforme regulamento
           </div>
-          <p style="font-size: 12px; color: var(--neutral-600);">Equipe DMX CashBack · LEME CALÇADOS LTDA</p>
+          <p style="font-size: 12px; color: var(--neutral-600);">Equipe DMX CashBack · [Nome da Empresa]</p>
         </div>
       `;
     }
