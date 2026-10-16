@@ -415,18 +415,69 @@ async function handleSaveProfile(e) {
   const name = document.getElementById('profileInputName')?.value.trim();
   const phone = document.getElementById('profileInputPhone')?.value.trim();
   const email = document.getElementById('profileInputEmail')?.value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
 
   if (!name || !email) {
-    showClientToast('Preencha os campos obrigatórios.', 'error');
+    showClientToast('Por favor, preencha todos os campos obrigatórios (*).', 'error');
     return;
   }
 
-  const res = await ClientApiService.updateProfile({ name, phone, email });
-  if (res.success) {
-    clientState.profile = res.data;
-    updateClientHeader();
-    showClientToast('Dados cadastrais atualizados com sucesso!', 'success');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Salvando...`;
   }
+
+  setTimeout(async () => {
+    const res = await ClientApiService.updateProfile({ name, phone, email });
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Salvar Dados Cadastrais';
+    }
+
+    if (res.success) {
+      clientState.profile = res.data;
+      updateClientHeader();
+      showClientToast('Dados cadastrais atualizados na sessão! (Em produção, sincronizados via endpoint REST).', 'success');
+    }
+  }, 500);
+}
+
+function handleChangePassword(e) {
+  e.preventDefault();
+  const currentPw = document.getElementById('clientCurrentPw')?.value.trim();
+  const newPw = document.getElementById('clientNewPw')?.value;
+  const newPwConfirm = document.getElementById('clientNewPwConfirm')?.value;
+  const submitBtn = document.getElementById('btnSaveNewClientPw');
+
+  if (!currentPw || !newPw || !newPwConfirm) {
+    showClientToast('Por favor, preencha todos os campos de senha.', 'error');
+    return;
+  }
+
+  if (newPw.length < 8) {
+    showClientToast('A nova senha deve ter no mínimo 8 caracteres.', 'error');
+    return;
+  }
+
+  if (newPw !== newPwConfirm) {
+    showClientToast('A nova senha e a confirmação não coincidem.', 'error');
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Atualizando...`;
+  }
+
+  setTimeout(() => {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Salvar Nova Senha';
+    }
+    closeClientModal('modalChangePassword');
+    document.getElementById('clientPasswordChangeForm')?.reset();
+    showClientToast('Senha atualizada na sessão com sucesso! (Em produção, criptografada via BCrypt no backend Java).', 'success');
+  }, 600);
 }
 
 /* ──────────────────────────────────────────────────────────

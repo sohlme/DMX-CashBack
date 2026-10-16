@@ -16,12 +16,29 @@
     })();
   </script>
 
-  <!-- Prevenção de navegação pelo histórico (botão voltar) pós-logout -->
+  <!-- Proteção Obrigatória de Acesso Administrativo -->
   <script>
+    (function() {
+      try {
+        var sessRaw = sessionStorage.getItem('dmx_admin_session');
+        if (!sessRaw) {
+          window.location.replace('login-admin.html');
+          return;
+        }
+        var sess = JSON.parse(sessRaw);
+        if (!sess || !sess.authenticated || sess.user?.role !== 'admin') {
+          sessionStorage.removeItem('dmx_admin_session');
+          window.location.replace('login-admin.html');
+          return;
+        }
+      } catch (e) {
+        window.location.replace('login-admin.html');
+      }
+    })();
+
     window.addEventListener('pageshow', function(event) {
       if (event.persisted && !sessionStorage.getItem('dmx_admin_session')) {
-        var overlay = document.getElementById('authOverlay');
-        if (overlay) overlay.style.display = 'flex';
+        window.location.replace('login-admin.html');
       }
     });
   </script>
@@ -40,7 +57,7 @@
 <!-- ═══════════════════════════════════════════════════════
      0. TELA DE AUTENTICAÇÃO (Login / Cadastro / Recuperação)
 ═══════════════════════════════════════════════════════ -->
-<div class="auth-overlay" id="authOverlay" style="display: flex;">
+<div class="auth-overlay" id="authOverlay" style="display: none;">
   <div class="company-selector-bg-deco" aria-hidden="true">
     <div class="deco-circle deco-circle--1"></div>
     <div class="deco-circle deco-circle--2"></div>

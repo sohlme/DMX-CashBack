@@ -550,18 +550,18 @@
         </button>
       </div>
       <div class="modal-body">
-        <form onsubmit="event.preventDefault(); closeClientModal('modalChangePassword'); showClientToast('Solicitação de redefinição registrada! No sistema definitivo, o link seguro de validação é enviado para seu e-mail cadastrado.', 'info');">
+        <form id="clientPasswordChangeForm" onsubmit="handleChangePassword(event)">
           <div class="input-group" style="margin-bottom: 12px;">
-            <label class="input-label">Senha Atual</label>
-            <input type="password" class="input" placeholder="Digite sua senha atual..." required />
+            <label class="input-label" for="clientCurrentPw">Senha Atual</label>
+            <input type="password" id="clientCurrentPw" class="input" placeholder="Digite sua senha atual..." required />
           </div>
           <div class="input-group" style="margin-bottom: 12px;">
-            <label class="input-label">Nova Senha</label>
-            <input type="password" class="input" placeholder="Mínimo de 8 caracteres..." required minlength="8" />
+            <label class="input-label" for="clientNewPw">Nova Senha</label>
+            <input type="password" id="clientNewPw" class="input" placeholder="Mínimo de 8 caracteres..." required minlength="8" />
           </div>
           <div class="input-group" style="margin-bottom: 16px;">
-            <label class="input-label">Confirmar Nova Senha</label>
-            <input type="password" class="input" placeholder="Repita a nova senha..." required minlength="8" />
+            <label class="input-label" for="clientNewPwConfirm">Confirmar Nova Senha</label>
+            <input type="password" id="clientNewPwConfirm" class="input" placeholder="Repita a nova senha..." required minlength="8" />
           </div>
 
           <div style="background: var(--neutral-50); border: 1px dashed var(--neutral-300); border-radius: var(--radius-md); padding: 10px 12px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 16px; line-height: 1.4;">
@@ -570,7 +570,7 @@
 
           <div style="display: flex; justify-content: flex-end; gap: 8px;">
             <button type="button" class="btn btn--ghost btn--sm" data-modal-close>Cancelar</button>
-            <button type="submit" class="btn btn--primary btn--sm">Salvar Nova Senha</button>
+            <button type="submit" class="btn btn--primary btn--sm" id="btnSaveNewClientPw">Salvar Nova Senha</button>
           </div>
         </form>
       </div>

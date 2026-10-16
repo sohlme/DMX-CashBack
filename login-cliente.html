@@ -404,20 +404,25 @@
 
     </form>
 
-    <!-- Chamada para Primeiro Acesso / Ativação -->
-    <div style="text-align: center; font-size: 13px; color: var(--color-text-secondary); border-top: 1px solid var(--neutral-100); padding-top: 16px;">
-      Primeiro acesso pelo convite da loja? 
-      <a href="javascript:void(0)" class="login-link" onclick="openActivateModal()" style="font-weight: 700; margin-left: 2px;">Ativar minha conta</a>
+    <!-- Chamada para Criar Conta / Primeiro Acesso -->
+    <div style="text-align: center; font-size: 13px; color: var(--color-text-secondary); border-top: 1px solid var(--neutral-100); padding-top: 14px;">
+      Não possui uma conta de cliente? 
+      <a href="javascript:void(0)" class="login-link" onclick="openRegisterModal()" style="font-weight: 700; margin-left: 2px;">Criar conta</a>
+    </div>
+
+    <div style="text-align: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
+      Comprou em loja credenciada? 
+      <a href="javascript:void(0)" class="login-link" onclick="openActivateModal()" style="font-weight: 600;">Ativar conta pré-cadastrada</a>
     </div>
 
   </div>
 
-  <!-- Rodapé discreto para alternar para o Painel Administrativo de Empresas -->
+  <!-- Rodapé discreto para alternar para o Acesso Administrativo -->
   <div class="admin-switch-footer">
-    <span>É proprietário ou operador de uma empresa credenciada?</span><br />
-    <a href="index.html" title="Acessar o Painel de Gestão Empresarial">
+    <span>É administrador ou operador de uma empresa credenciada?</span><br />
+    <a href="login-admin.html" title="Acessar o Painel de Gestão Empresarial">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-      Acesso Administrativo da Empresa →
+      Acesso Administrativo da Empresa &rarr;
     </a>
   </div>
 
@@ -498,6 +503,69 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════════════════════════
+       MODAL 3: CRIAR CONTA DE CLIENTE
+       ════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="modalRegisterClient" role="dialog" aria-modal="true" aria-labelledby="modalRegisterClientTitle">
+    <div class="modal-dialog" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalRegisterClientTitle" style="font-size: 16px; font-weight: 700;">Criar Conta de Cliente</h3>
+        <button type="button" class="btn btn--ghost btn--sm btn--icon" onclick="closeRegisterModal()" aria-label="Fechar modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin: 0 0 16px;">
+          Cadastre-se para acompanhar seus saldos de cashback, consultar extratos e autorizar resgates.
+        </p>
+
+        <form id="clientRegisterForm" onsubmit="handleRegisterSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;" novalidate>
+          <div class="input-group">
+            <label class="input-label" for="clientRegName">Nome completo *</label>
+            <input type="text" id="clientRegName" class="input" placeholder="Ex: Lucas Ferreira" required />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="clientRegEmail">E-mail *</label>
+            <input type="email" id="clientRegEmail" class="input" placeholder="seu.email@exemplo.com" required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="input-group">
+              <label class="input-label" for="clientRegPassword">Senha *</label>
+              <div class="password-wrap">
+                <input type="password" id="clientRegPassword" class="input" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibilityField('clientRegPassword', 'eyeClientReg1')" aria-label="Mostrar ou ocultar senha">
+                  <svg id="eyeClientReg1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label" for="clientRegPasswordConfirm">Confirmar senha *</label>
+              <div class="password-wrap">
+                <input type="password" id="clientRegPasswordConfirm" class="input" placeholder="Repita a senha" required minlength="6" />
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibilityField('clientRegPasswordConfirm', 'eyeClientReg2')" aria-label="Mostrar ou ocultar senha">
+                  <svg id="eyeClientReg2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--color-text-secondary); cursor: pointer; margin-top: 4px;">
+            <input type="checkbox" id="clientRegTerms" style="margin-top: 2px;" required />
+            <span>Li e concordo com os Termos de Uso e a Política de Privacidade do DMX CashBack.</span>
+          </label>
+
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+            <button type="button" class="btn btn--ghost btn--sm" onclick="closeRegisterModal()">Cancelar</button>
+            <button type="submit" class="btn btn--primary btn--sm" id="btnClientRegSubmit">Concluir Cadastro</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Container de Toasts de Notificação -->
   <div class="toast-container" id="loginToastContainer"></div>
 
@@ -538,67 +606,86 @@
       }
     });
 
-    // Alternar visibilidade da senha (olho)
-    function togglePasswordVisibility() {
-      const input = document.getElementById('clientPassword');
-      const eyeIcon = document.getElementById('eyeIcon');
-      if (!input || !eyeIcon) return;
+    // Alternar visibilidade de qualquer campo de senha
+    function togglePasswordVisibilityField(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
 
       if (input.type === 'password') {
         input.type = 'text';
-        eyeIcon.innerHTML = `
+        icon.innerHTML = `
           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
           <line x1="1" y1="1" x2="23" y2="23"/>
         `;
       } else {
         input.type = 'password';
-        eyeIcon.innerHTML = `
+        icon.innerHTML = `
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
           <circle cx="12" cy="12" r="3"/>
         `;
       }
     }
 
+    function togglePasswordVisibility() {
+      togglePasswordVisibilityField('clientPassword', 'eyeIcon');
+    }
+
     // Envio do formulário com e-mail e senha
     function handleFormLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('clientEmail').value.trim();
-      const password = document.getElementById('clientPassword').value.trim();
+      const emailInput = document.getElementById('clientEmail');
+      const passwordInput = document.getElementById('clientPassword');
+      const email = emailInput?.value.trim() || '';
+      const password = passwordInput?.value.trim() || '';
       const rememberMe = document.getElementById('rememberMeCheckbox')?.checked;
+      const submitBtn = document.getElementById('submitLoginBtn');
 
       if (!email || !password) {
-        showLoginAlert('error', 'Por favor, informe seu e-mail e sua senha.');
+        showLoginAlert('error', 'Por favor, informe seu e-mail e sua senha de acesso.');
+        if (!email) emailInput?.focus();
+        else passwordInput?.focus();
         return;
       }
 
-      // "Lembrar meu e-mail": salva somente o e-mail em localStorage
-      if (rememberMe) {
-        localStorage.setItem('dmx_saved_client_email', email);
-      } else {
-        localStorage.removeItem('dmx_saved_client_email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showLoginAlert('error', 'Por favor, informe um endereço de e-mail válido.');
+        emailInput?.focus();
+        return;
       }
 
-      // Criar sessão de autenticação em sessionStorage (expira ao fechar navegador/aba)
-      const inferredName = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const clientSession = {
-        name: inferredName || 'Cliente DMX',
-        email: email,
-        authenticated: true,
-        loginTime: new Date().toISOString(),
-        role: 'client'
-      };
-
-      sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
-
-      showLoginAlert('success', 'Autenticado com sucesso! Acessando sua Área do Cliente...');
-      const submitBtn = document.getElementById('submitLoginBtn');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span> Conectando...`;
-      }
+      // Desabilita botão e exibe carregamento
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="spinner spinner--sm" style="display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:8px;"></span>
+        Acessando carteira...
+      `;
 
       setTimeout(() => {
-        window.location.href = 'cliente.html';
+        // "Lembrar meu e-mail": salva somente o e-mail em localStorage
+        if (rememberMe) {
+          localStorage.setItem('dmx_saved_client_email', email);
+        } else {
+          localStorage.removeItem('dmx_saved_client_email');
+        }
+
+        // Criar sessão de autenticação em sessionStorage (expira ao fechar navegador/aba)
+        const inferredName = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const clientSession = {
+          name: inferredName || 'Cliente DMX',
+          email: email,
+          authenticated: true,
+          loginTime: new Date().toISOString(),
+          role: 'client'
+        };
+
+        sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
+
+        showLoginAlert('success', 'Autenticado com sucesso! Acessando sua Área do Cliente...');
+        setTimeout(() => {
+          window.location.href = 'cliente.html';
+        }, 400);
       }, 500);
     }
 
@@ -616,10 +703,81 @@
       }
     }
 
+    // Controle do Modal Criar Conta de Cliente
+    function openRegisterModal() {
+      const m = document.getElementById('modalRegisterClient');
+      if (m) m.classList.add('modal-backdrop--open');
+    }
+
+    function closeRegisterModal() {
+      const m = document.getElementById('modalRegisterClient');
+      if (m) m.classList.remove('modal-backdrop--open');
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('clientRegName')?.value.trim();
+      const email = document.getElementById('clientRegEmail')?.value.trim();
+      const pw = document.getElementById('clientRegPassword')?.value;
+      const pwConfirm = document.getElementById('clientRegPasswordConfirm')?.value;
+      const terms = document.getElementById('clientRegTerms')?.checked;
+      const btn = document.getElementById('btnClientRegSubmit');
+
+      if (!name || !email || !pw || !pwConfirm) {
+        showToast('Por favor, preencha todos os campos obrigatórios (*).', 'error');
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showToast('Por favor, informe um endereço de e-mail válido.', 'error');
+        return;
+      }
+
+      if (pw.length < 6) {
+        showToast('A senha deve conter no mínimo 6 caracteres.', 'error');
+        return;
+      }
+
+      if (pw !== pwConfirm) {
+        showToast('As senhas digitadas não coincidem. Verifique e tente novamente.', 'error');
+        return;
+      }
+
+      if (!terms) {
+        showToast('É necessário aceitar os Termos de Uso e Política de Privacidade.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Criando conta...`;
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = 'Concluir Cadastro';
+        closeRegisterModal();
+
+        const emailInput = document.getElementById('clientEmail');
+        if (emailInput) {
+          emailInput.value = email;
+          const pwInput = document.getElementById('clientPassword');
+          if (pwInput) pwInput.focus();
+        }
+
+        showToast('Cadastro recebido! Em ambiente de produção com backend Java (Spring Boot), seu perfil é ativado no banco de dados.', 'success');
+        showLoginAlert('success', `Cadastro de ${name} registrado. Você já pode fazer login com seu e-mail.`);
+      }, 700);
+    }
+
     // Controle do Modal Esqueci Minha Senha
     function openForgotModal() {
       const m = document.getElementById('modalForgotPassword');
-      if (m) m.classList.add('modal-backdrop--open');
+      if (m) {
+        m.classList.add('modal-backdrop--open');
+        const input = document.getElementById('forgotEmailInput');
+        const currentEmail = document.getElementById('clientEmail')?.value;
+        if (input && currentEmail) input.value = currentEmail;
+      }
     }
 
     function closeForgotModal() {
@@ -629,9 +787,27 @@
 
     function handleForgotSubmit(e) {
       e.preventDefault();
-      const email = document.getElementById('forgotEmailInput').value.trim();
-      closeForgotModal();
-      showToast(`Link de recuperação enviado com sucesso para ${email}! Verifique sua caixa de entrada.`, 'success');
+      const email = document.getElementById('forgotEmailInput')?.value.trim();
+      const btn = e.target.querySelector('button[type="submit"]');
+
+      if (!email) {
+        showToast('Por favor, informe seu e-mail cadastrado.', 'error');
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Enviando instruções...`;
+      }
+
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = 'Enviar Link de Recuperação';
+        }
+        closeForgotModal();
+        showToast(`Instruções de recuperação geradas para ${email}. Em produção, o link seguro é enviado via backend Java.`, 'info');
+      }, 600);
     }
 
     // Controle do Modal Ativar Minha Conta
@@ -648,22 +824,41 @@
     function handleActivateSubmit(e) {
       e.preventDefault();
       const cpf = document.getElementById('activateCpfInput')?.value.trim();
-      closeActivateModal();
+      const code = document.getElementById('activateCodeInput')?.value.trim();
+      const pw = document.getElementById('activatePasswordInput')?.value;
+      const btn = e.target.querySelector('button[type="submit"]');
 
-      // Cria sessão de cliente
-      const clientSession = {
-        name: 'Cliente Cadastrado',
-        cpf: cpf,
-        email: 'cliente@exemplo.com',
-        authenticated: true,
-        loginTime: new Date().toISOString(),
-        role: 'client'
-      };
-      sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
+      if (!cpf || !code || !pw) {
+        showToast('Por favor, preencha todos os campos da ativação.', 'error');
+        return;
+      }
 
-      showToast('Conta ativada com sucesso! Conectando à sua carteira...', 'success');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Ativando conta...`;
+      }
+
       setTimeout(() => {
-        window.location.href = 'cliente.html';
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = 'Ativar Conta e Entrar';
+        }
+        closeActivateModal();
+
+        const clientSession = {
+          name: 'Cliente Cadastrado',
+          cpf: cpf,
+          email: 'cliente@exemplo.com',
+          authenticated: true,
+          loginTime: new Date().toISOString(),
+          role: 'client'
+        };
+        sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
+
+        showToast('Conta ativada com sucesso! Conectando à sua carteira...', 'success');
+        setTimeout(() => {
+          window.location.href = 'cliente.html';
+        }, 500);
       }, 700);
     }
 
@@ -674,10 +869,11 @@
 
       const toast = document.createElement('div');
       toast.className = `toast toast--${type}`;
-      toast.style.cssText = 'background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); padding: 12px 18px; border-left: 4px solid var(--brand-main); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; animation: fadeIn 0.2s ease;';
+      toast.style.cssText = 'background: white; border-radius: var(--radius-md, 8px); box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1)); padding: 12px 18px; border-left: 4px solid var(--brand-main); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; animation: fadeIn 0.2s ease;';
 
       if (type === 'success') toast.style.borderLeftColor = '#2F7957';
       if (type === 'error') toast.style.borderLeftColor = '#C0392B';
+      if (type === 'info') toast.style.borderLeftColor = '#2563EB';
 
       toast.innerHTML = `<span>${msg}</span>`;
       container.appendChild(toast);
