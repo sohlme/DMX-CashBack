@@ -709,13 +709,7 @@ function logout() {
   sessionStorage.removeItem('dmx_admin_session');
   state.authenticated = false;
   state.currentUser = null;
-  const authOverlay = document.getElementById('authOverlay');
-  if (authOverlay) {
-    authOverlay.style.display = 'flex';
-  }
-  showToast('Sessão encerrada com sucesso.', 'info');
-}
-  showToast('Sessão encerrada com sucesso. Você pode alternar de conta.', 'info');
+  window.location.href = 'login-admin.html';
 }
 
 /* ── Seleção Dinâmica de Empresas (Filtrada por Conta Autenticada) ─ */
@@ -870,44 +864,59 @@ function initModals() {
     openModal('modalNovoCliente');
   });
 
-  // Salvar Novo Cliente com validação
+  // Salvar Novo Cliente com validação e feedback visual
   document.getElementById('formNovoCliente')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const nome = document.getElementById('clienteNome').value.trim();
-    const cpf = document.getElementById('clienteCpf').value.trim();
-    const tel = document.getElementById('clienteTel').value.trim();
-    const email = document.getElementById('clienteEmail').value.trim() || '—';
-    const saldo = document.getElementById('clienteSaldo').value.trim() || '0,00';
+    const nome = document.getElementById('clienteNome')?.value.trim();
+    const cpf = document.getElementById('clienteCpf')?.value.trim();
+    const tel = document.getElementById('clienteTel')?.value.trim();
+    const email = document.getElementById('clienteEmail')?.value.trim() || '—';
+    const saldo = document.getElementById('clienteSaldo')?.value.trim() || '0,00';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
 
     if (!nome || !cpf || !tel) {
       showToast('Por favor, preencha os campos obrigatórios (*)', 'error');
       return;
     }
 
-    // Inserir linha fictícia na tabela de clientes
-    const tableBody = document.querySelector('#tableClientes .data-table tbody');
-    if (tableBody) {
-      const newRow = document.createElement('tr');
-      const nextCode = tableBody.children.length + 1;
-      newRow.innerHTML = `
-        <td data-label="Código" class="td-code">${nextCode}</td>
-        <td data-label="Nome"><strong>${nome.toUpperCase()}</strong></td>
-        <td data-label="CPF">${cpf}</td>
-        <td data-label="Celular">${tel}</td>
-        <td data-label="E-Mail">${email}</td>
-        <td data-label="Saldo" class="td-monetary">${saldo}</td>
-        <td data-label="Ativo" class="td-center"><span class="badge badge--success">SIM</span></td>
-        <td data-label="Ações" class="td-right">
-          <button class="btn-table-action" onclick="showToast('Visualizando cliente ${nome}', 'info')">${icon('eye', 14)} Ver</button>
-          <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando cliente ${nome}', 'info')">${icon('edit', 14)}</button>
-          <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', '${nome}')">${icon('trash', 14)}</button>
-        </td>
-      `;
-      tableBody.prepend(newRow);
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Salvando cliente...`;
     }
 
-    closeModal('modalNovoCliente');
-    showToast(`Cliente ${nome} cadastrado com sucesso!`, 'success');
+    setTimeout(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Salvar cliente';
+      }
+
+      const tableBody = document.querySelector('#tableClientes .data-table tbody');
+      if (tableBody) {
+        const emptyRow = tableBody.querySelector('td[colspan]');
+        if (emptyRow) emptyRow.closest('tr')?.remove();
+
+        const newRow = document.createElement('tr');
+        const nextCode = tableBody.children.length + 1;
+        newRow.innerHTML = `
+          <td data-label="Código" class="td-code">${nextCode}</td>
+          <td data-label="Nome"><strong>${nome.toUpperCase()}</strong></td>
+          <td data-label="CPF">${cpf}</td>
+          <td data-label="Celular">${tel}</td>
+          <td data-label="E-Mail">${email}</td>
+          <td data-label="Saldo" class="td-monetary">R$ ${saldo}</td>
+          <td data-label="Ativo" class="td-center"><span class="badge badge--success">SIM</span></td>
+          <td data-label="Ações" class="td-right">
+            <button class="btn-table-action" onclick="showToast('Visualizando cliente ${nome}', 'info')">${icon('eye', 14)} Ver</button>
+            <button class="btn-table-action btn-table-action--edit" onclick="showToast('Editando cliente ${nome}', 'info')">${icon('edit', 14)}</button>
+            <button class="btn-table-action btn-table-action--delete" onclick="confirmDelete('cliente', '${nome}')">${icon('trash', 14)}</button>
+          </td>
+        `;
+        tableBody.prepend(newRow);
+      }
+
+      closeModal('modalNovoCliente');
+      showToast(`Cliente ${nome} cadastrado na sessão! (Em produção, o registro é persistido via API Java).`, 'success');
+    }, 600);
   });
 
   // Botão Configurações da Conta na Topbar
@@ -943,8 +952,28 @@ function initModals() {
 
   document.getElementById('formNovaEmpresa')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    closeModal('modalNovaEmpresa');
-    showToast('Empresa cadastrada com sucesso!', 'success');
+    const nome = document.getElementById('empresaNome')?.value.trim();
+    const cnpj = document.getElementById('empresaCnpj')?.value.trim();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (!nome || !cnpj) {
+      showToast('Por favor, informe o nome e o CNPJ da empresa.', 'error');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Cadastrando empresa...`;
+    }
+
+    setTimeout(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Salvar empresa';
+      }
+      closeModal('modalNovaEmpresa');
+      showToast(`Empresa ${nome} cadastrada na sessão! (Em produção, persistida pelo backend Java).`, 'success');
+    }, 600);
   });
 
   // Botão Novo Lançamento
@@ -954,8 +983,28 @@ function initModals() {
 
   document.getElementById('formNovoLancamento')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    closeModal('modalNovoLancamento');
-    showToast('Lançamento registrado com sucesso!', 'success');
+    const cliente = document.getElementById('lancamentoCliente')?.value.trim();
+    const valor = document.getElementById('lancamentoValor')?.value.trim();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (!cliente || !valor) {
+      showToast('Por favor, informe o cliente e o valor da compra.', 'error');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Registrando cashback...`;
+    }
+
+    setTimeout(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Salvar lançamento';
+      }
+      closeModal('modalNovoLancamento');
+      showToast(`Lançamento de cashback registrado para ${cliente}! (Em produção, validado pela API Java).`, 'success');
+    }, 600);
   });
 }
 
@@ -2045,21 +2094,39 @@ function initComunicacaoEmails() {
       return;
     }
 
-    state.emailSettings = {
-      senderEmail: sender,
-      senderName: name,
-      adminEmail: adminEmail,
-      provider: provider,
-      configured: true
-    };
-
-    if (badge) {
-      badge.textContent = 'Configurado';
-      badge.className = 'badge badge--success';
+    const submitBtn = document.querySelector('#formEmailConfig button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="spinner spinner--sm" style="display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.6s linear infinite; margin-right:6px;"></span> Salvando...`;
     }
 
-    showToast('Configurações institucionais de e-mail salvas com sucesso!', 'success');
+    setTimeout(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Salvar Parâmetros';
+      }
+
+      state.emailSettings = {
+        senderEmail: sender,
+        senderName: name,
+        adminEmail: adminEmail,
+        provider: provider,
+        configured: true
+      };
+
+      if (badge) {
+        badge.textContent = 'Configurado';
+        badge.className = 'badge badge--success';
+      }
+
+      showToast('Configurações de e-mail salvas na sessão! Os envios reais serão executados pelo backend Java.', 'success');
+    }, 500);
   };
+
+  document.getElementById('formEmailConfig')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    window.saveEmailConfig();
+  });
 
   window.resetEmailConfigForm = () => {
     if (senderInput) senderInput.value = '';
