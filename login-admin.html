@@ -28,7 +28,7 @@
 
     body.admin-login-body {
       font-family: var(--font-sans, 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif);
-      background-color: var(--color-bg, #F6F8F6);
+      background: radial-gradient(circle at 75% 20%, #348563 0%, #245440 60%, #1A3E2F 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -53,19 +53,35 @@
       width: 520px;
       height: 520px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(47, 121, 87, 0.09) 0%, rgba(47, 121, 87, 0) 70%);
-      top: -160px;
-      right: -100px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle, rgba(47, 121, 87, 0.25) 0%, transparent 70%);
+      top: -120px;
+      left: -100px;
     }
 
     .admin-login-bg-deco .circle-2 {
       position: absolute;
-      width: 440px;
-      height: 440px;
+      width: 600px;
+      height: 600px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(26, 61, 46, 0.07) 0%, rgba(26, 61, 46, 0) 70%);
-      bottom: -120px;
-      left: -80px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle, rgba(47, 121, 87, 0.2) 0%, transparent 70%);
+      bottom: -200px;
+      right: -100px;
+    }
+
+    .admin-login-bg-deco .deco-dollar {
+      position: absolute;
+      top: 14%;
+      right: 14%;
+      opacity: 0.6;
+    }
+
+    .admin-login-bg-deco .deco-percent {
+      position: absolute;
+      bottom: 14%;
+      left: 10%;
+      opacity: 0.5;
     }
 
     .admin-login-card {
@@ -73,10 +89,10 @@
       z-index: 1;
       width: 100%;
       max-width: 440px;
-      background: var(--admin-card-bg);
-      border: 1px solid var(--admin-border);
+      background: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: var(--radius-card, 10px);
-      box-shadow: 0 10px 25px -5px rgba(26, 61, 46, 0.08), 0 8px 10px -6px rgba(26, 61, 46, 0.04);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(0, 0, 0, 0.1);
       padding: 36px 32px;
       display: flex;
       flex-direction: column;
@@ -299,6 +315,19 @@
   <div class="admin-login-bg-deco" aria-hidden="true">
     <div class="circle-1"></div>
     <div class="circle-2"></div>
+    <div class="deco-dollar">
+      <svg width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <div class="deco-percent">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="5" x2="5" y2="19"/>
+        <circle cx="6.5" cy="6.5" r="2.5"/>
+        <circle cx="17.5" cy="17.5" r="2.5"/>
+      </svg>
+    </div>
   </div>
 
   <main class="admin-login-card" role="main">
@@ -391,14 +420,9 @@
 
   </main>
 
-  <footer class="admin-switch-footer">
-    <span>É um consumidor consultando seu saldo de cashback?</span><br />
-    <a href="login-cliente.html" title="Acessar a Área do Cliente">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      Acessar Área do Cliente &rarr;
+  <footer class="admin-switch-footer" style="text-align: center; margin-top: 16px;">
+    <a href="index.html" style="color: rgba(255, 255, 255, 0.9); font-weight: 700; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+      &larr; Voltar para o Acesso Principal Unificado
     </a>
   </footer>
 

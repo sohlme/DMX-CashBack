@@ -364,10 +364,44 @@ function initNotifications() {
 /* ── Banco de Contas e Isolamento Multiusuário ─────────── */
 function getAccountsDB() {
   const defaultAccounts = {
+    // Cenário C: Administrador Geral com múltiplas empresas vinculadas
     'admin@empresa.com.br': {
-      name: 'Administrador',
+      name: 'Administrador DMX',
       email: 'admin@empresa.com.br',
       role: 'admin',
+      canCreateCompany: true,
+      companies: ['DMX Matriz', 'DMX Filial Shopping']
+    },
+    // Cenário B: Gestor com exatamente 1 empresa vinculada
+    'gestor@calcados.com': {
+      name: 'Gestor Calçados Silva',
+      email: 'gestor@calcados.com',
+      role: 'business',
+      canCreateCompany: true,
+      companies: ['Calçados Silva']
+    },
+    // Cenário A: Novo gestor com 0 empresas e permissão para cadastrar
+    'novo@empresa.com': {
+      name: 'Carlos Oliveira',
+      email: 'novo@empresa.com',
+      role: 'business',
+      canCreateCompany: true,
+      companies: []
+    },
+    // Cenário D: Operador com 0 empresas e SEM permissão para criar
+    'operador@empresa.com': {
+      name: 'Mariana Santos',
+      email: 'operador@empresa.com',
+      role: 'operator',
+      canCreateCompany: false,
+      companies: []
+    },
+    // Consumidor / Cliente (Redirecionamento automático para Área do Cliente)
+    'cliente@email.com': {
+      name: 'Lucas Ferreira',
+      email: 'cliente@email.com',
+      role: 'client',
+      canCreateCompany: false,
       companies: []
     }
   };
@@ -376,9 +410,11 @@ function getAccountsDB() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (!parsed['admin@empresa.com.br']) {
-        parsed['admin@empresa.com.br'] = defaultAccounts['admin@empresa.com.br'];
-      }
+      Object.keys(defaultAccounts).forEach(k => {
+        if (!parsed[k]) {
+          parsed[k] = defaultAccounts[k];
+        }
+      });
       return parsed;
     } catch (e) {
       console.warn('Erro ao carregar banco de contas local:', e);
@@ -399,21 +435,22 @@ function updateCompanyAndUserDisplay() {
   const avatarDisplay = document.getElementById('sidebarAvatarDisplay');
 
   if (compDisplay) {
-    compDisplay.textContent = state.selectedCompany || 'Empresa Selecionada';
+    const compText = state.selectedCompany || 'Selecione a empresa';
+    compDisplay.innerHTML = `${compText} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 2px; vertical-align: middle;"><path d="M6 9l6 6 6-6"/></svg>`;
   }
 
   if (userDisplay) {
-    userDisplay.textContent = state.currentUser?.name || 'Administrador';
+    userDisplay.textContent = state.currentUser?.name || (state.isAdminMode ? 'Administrador' : 'Usuário');
   }
 
   if (avatarDisplay) {
-    const userName = state.currentUser?.name || 'Administrador';
+    const userName = state.currentUser?.name || (state.isAdminMode ? 'Administrador' : 'Usuário');
     const initials = userName.trim().split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     avatarDisplay.innerHTML = `<span style="font-weight:700; font-size:12px;">${initials || 'AD'}</span>`;
   }
 }
 
-/* ── Login, Cadastro e Autenticação com Privacidade ─── */
+/* ── Login Unificado, Cadastro e Autenticação por Perfil ─── */
 function initAuth() {
   const authOverlay = document.getElementById('authOverlay');
   const loginForm = document.getElementById('loginForm');
@@ -435,7 +472,8 @@ function initAuth() {
         state.authenticated = true;
         state.currentUser = session.user;
         state.selectedCompany = session.user.companies?.[0] || 'DMX CashBack';
-        state.isAdminMode = session.user.role === 'admin' || true;
+        state.isAdminMode = session.user.role === 'admin';
+        document.body.classList.toggle('role--admin', state.isAdminMode);
         if (authOverlay) authOverlay.style.display = 'none';
       }
     } catch (e) {
@@ -443,7 +481,7 @@ function initAuth() {
     }
   }
 
-  // Se não autenticado, garantir exibição da tela de login
+  // Se não autenticado, garantir exibição da tela de login unificada
   if (!state.authenticated && authOverlay) {
     authOverlay.style.display = 'flex';
   }
@@ -488,7 +526,7 @@ function initAuth() {
     document.getElementById('loginEmail').focus();
   });
 
-  // Login Submit com verificação de isolamento de empresas
+  // Login Submit com Roteamento Automático por Perfil (Admin vs Cliente vs Empresa)
   loginForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -510,30 +548,35 @@ function initAuth() {
       const currentDb = getAccountsDB();
       let userAccount = currentDb[email];
 
-      // Se a conta não existia no banco, inicializa com 0 empresas
+      // Se a conta não existia no banco, classifica o perfil por convenção inteligente
       if (!userAccount) {
         const inferredName = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        let inferredRole = 'business';
+        let inferredCanCreate = true;
+
+        if (email.includes('admin')) {
+          inferredRole = 'admin';
+          inferredCanCreate = true;
+        } else if (email.includes('cliente') || email.includes('consumidor')) {
+          inferredRole = 'client';
+          inferredCanCreate = false;
+        } else if (email.includes('operador') || email.includes('oper')) {
+          inferredRole = 'operator';
+          inferredCanCreate = false;
+        }
+
         userAccount = {
           name: inferredName || 'Novo Usuário',
           email: email,
+          role: inferredRole,
+          canCreateCompany: inferredCanCreate,
           companies: []
         };
         currentDb[email] = userAccount;
         saveAccountsDB(currentDb);
       }
 
-      state.authenticated = true;
-      state.currentUser = userAccount;
-      state.isAdminMode = userAccount.role === 'admin' || userAccount.email.includes('admin');
-
-      // Salvar sessão no sessionStorage (expira ao fechar aba/janela)
-      sessionStorage.setItem('dmx_admin_session', JSON.stringify({
-        authenticated: true,
-        user: userAccount,
-        timestamp: Date.now()
-      }));
-
-      // Lembrar conta com segurança (sem armazenar senha!)
+      // Lembrar e-mail com segurança (sem armazenar senha!)
       if (rememberCheckbox?.checked) {
         localStorage.setItem('dmx_saved_account', JSON.stringify({
           name: userAccount.name,
@@ -541,27 +584,63 @@ function initAuth() {
         }));
       }
 
-      updateCompanyAndUserDisplay();
+      // ── CASO 1: CLIENTE / CONSUMIDOR ─────────────────────────
+      if (userAccount.role === 'client') {
+        const clientSession = {
+          name: userAccount.name,
+          email: userAccount.email,
+          authenticated: true,
+          loginTime: new Date().toISOString(),
+          role: 'client'
+        };
+        sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
+        showToast('Identificado como Consumidor. Acessando sua Área do Cliente...', 'success');
+        setTimeout(() => {
+          window.location.href = 'cliente.html';
+        }, 500);
+        return;
+      }
 
-      // Regra 6: Verificar empresas da conta autenticada
-      if (!userAccount.companies || userAccount.companies.length === 0) {
-        // Conta nova sem empresa: fluxo de cadastrar a primeira empresa
-        authOverlay.style.display = 'none';
-        openModal('modalFirstCompany');
-        showToast(`Bem-vindo, ${userAccount.name}! Cadastre sua primeira empresa para começar.`, 'info');
-      } else if (userAccount.companies.length === 1) {
-        // Apenas 1 empresa autorizada: entra diretamente nela sem tela desnecessária
-        state.selectedCompany = userAccount.companies[0];
+      // ── CASO 2: ADMINISTRADOR / GESTOR / OPERADOR ─────────────
+      state.authenticated = true;
+      state.currentUser = userAccount;
+      state.isAdminMode = userAccount.role === 'admin';
+      document.body.classList.toggle('role--admin', state.isAdminMode);
+
+      sessionStorage.setItem('dmx_admin_session', JSON.stringify({
+        authenticated: true,
+        user: userAccount,
+        timestamp: Date.now()
+      }));
+
+      // AVALIAÇÃO DOS CENÁRIOS DE EMPRESA (A, B, C, D)
+      const companies = userAccount.companies || [];
+
+      if (companies.length === 0) {
+        if (userAccount.canCreateCompany !== false) {
+          // Cenário A: 0 empresas vinculadas e permissão para cadastrar
+          authOverlay.style.display = 'none';
+          openModal('modalFirstCompany');
+          showToast(`Bem-vindo(a), ${userAccount.name}! Cadastre sua primeira empresa para começar.`, 'info');
+        } else {
+          // Cenário D: 0 empresas vinculadas e SEM permissão para criar
+          authOverlay.style.display = 'none';
+          openModal('modalNoCompanyAccess');
+          showToast('Sua conta não possui empresas vinculadas.', 'warning');
+        }
+      } else if (companies.length === 1) {
+        // Cenário B: exatamente 1 empresa autorizada -> entra direto
+        state.selectedCompany = companies[0];
         updateCompanyAndUserDisplay();
         authOverlay.style.display = 'none';
-        showToast(`Bem-vindo à ${state.selectedCompany}!`, 'success');
+        showToast(`Bem-vindo(a) à ${state.selectedCompany}!`, 'success');
       } else {
-        // Múltiplas empresas autorizadas: exibe apenas as empresas autorizadas para esta conta
+        // Cenário C: múltiplas empresas autorizadas -> exibe seletor de empresas
         authOverlay.style.display = 'none';
-        renderUserCompanyList(userAccount.companies);
+        renderUserCompanyList(companies);
         openCompanySelector();
       }
-    }, 600);
+    }, 500);
   });
 
   // Alternar para Cadastro
@@ -592,9 +671,10 @@ function initAuth() {
     document.getElementById('authLoginView').style.display = 'flex';
   });
 
-  // Submit Cadastro com Isolamento Obrigatório
+  // Submit Cadastro Unificado
   registerForm?.addEventListener('submit', (e) => {
     e.preventDefault();
+    const accountType = document.getElementById('regAccountType')?.value || 'business';
     const name = document.getElementById('regName')?.value.trim();
     const email = document.getElementById('regEmail')?.value.trim().toLowerCase();
     const pw = document.getElementById('regPassword')?.value;
@@ -621,10 +701,44 @@ function initAuth() {
 
       const currentDb = getAccountsDB();
 
-      // Nova conta com isolamento total: SEM empresas demonstrativas!
+      if (accountType === 'client') {
+        const clientAccount = {
+          name: name,
+          email: email,
+          role: 'client',
+          canCreateCompany: false,
+          companies: []
+        };
+        currentDb[email] = clientAccount;
+        saveAccountsDB(currentDb);
+
+        const clientSession = {
+          name: name,
+          email: email,
+          authenticated: true,
+          loginTime: new Date().toISOString(),
+          role: 'client'
+        };
+        sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
+
+        registerForm.reset();
+        document.getElementById('authRegisterView').style.display = 'none';
+        document.getElementById('authLoginView').style.display = 'flex';
+        authOverlay.style.display = 'none';
+
+        showToast('Conta de consumidor criada com sucesso! Acessando sua Área do Cliente...', 'success');
+        setTimeout(() => {
+          window.location.href = 'cliente.html';
+        }, 500);
+        return;
+      }
+
+      // Conta empresarial / gestor
       const newAccount = {
         name: name,
         email: email,
+        role: 'business',
+        canCreateCompany: true,
         companies: initialCompany ? [initialCompany] : []
       };
 
@@ -632,16 +746,15 @@ function initAuth() {
       saveAccountsDB(currentDb);
       state.authenticated = true;
       state.currentUser = newAccount;
-      state.isAdminMode = true;
+      state.isAdminMode = false;
+      document.body.classList.toggle('role--admin', false);
 
-      // Salvar sessão no sessionStorage (expira ao fechar aba/janela)
       sessionStorage.setItem('dmx_admin_session', JSON.stringify({
         authenticated: true,
         user: newAccount,
         timestamp: Date.now()
       }));
 
-      // Limpar formulário de cadastro
       registerForm.reset();
       document.getElementById('authRegisterView').style.display = 'none';
       document.getElementById('authLoginView').style.display = 'flex';
@@ -650,29 +763,37 @@ function initAuth() {
       updateCompanyAndUserDisplay();
 
       if (newAccount.companies.length === 0) {
-        // Se não informou empresa no cadastro, abre o fluxo de cadastrar a primeira empresa
         openModal('modalFirstCompany');
         showToast(`Conta criada com sucesso! Cadastre sua primeira empresa para continuar.`, 'success');
       } else {
-        // Se informou empresa, vincula e entra direto
         state.selectedCompany = newAccount.companies[0];
         updateCompanyAndUserDisplay();
         showToast(`Conta criada e vinculada a ${state.selectedCompany}!`, 'success');
       }
-    }, 600);
+    }, 500);
   });
 
-  // Submit Cadastro da Primeira Empresa (Onboarding)
+  // Submit Cadastro da Primeira Empresa (Cenário A - Onboarding)
   document.getElementById('formFirstCompany')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const compName = document.getElementById('firstCompanyName')?.value.trim();
-    if (!compName) {
-      showToast('Informe o nome da sua empresa.', 'error');
+    const tradingName = document.getElementById('firstCompanyTradingName')?.value.trim();
+    const legalName = document.getElementById('firstCompanyLegalName')?.value.trim();
+    const cnpj = document.getElementById('firstCompanyCnpj')?.value.trim();
+    const segment = document.getElementById('firstCompanySegment')?.value;
+    const email = document.getElementById('firstCompanyEmail')?.value.trim();
+    const phone = document.getElementById('firstCompanyPhone')?.value.trim();
+
+    if (!tradingName || !legalName || !cnpj || !segment || !email) {
+      showToast('Por favor, preencha todos os campos obrigatórios (*).', 'error');
       return;
     }
 
-    if (!state.currentUser.companies.includes(compName)) {
-      state.currentUser.companies.push(compName);
+    if (!state.currentUser.companies) {
+      state.currentUser.companies = [];
+    }
+
+    if (!state.currentUser.companies.includes(tradingName)) {
+      state.currentUser.companies.push(tradingName);
       const currentDb = getAccountsDB();
       if (currentDb[state.currentUser.email]) {
         currentDb[state.currentUser.email].companies = state.currentUser.companies;
@@ -680,18 +801,64 @@ function initAuth() {
       }
     }
 
-    state.selectedCompany = compName;
+    state.selectedCompany = tradingName;
     updateCompanyAndUserDisplay();
     closeModal('modalFirstCompany');
     document.getElementById('formFirstCompany').reset();
 
-    showToast(`Empresa "${compName}" cadastrada com sucesso! Bem-vindo(a) ao DMX CashBack.`, 'success');
+    showToast(`Empresa "${tradingName}" cadastrada com sucesso! Bem-vindo(a) ao DMX CashBack.`, 'success');
+  });
+
+  // Alternar empresa ao clicar no nome da empresa no topo (Cenário C)
+  const compDisplayBtn = document.getElementById('companyNameDisplay');
+  compDisplayBtn?.addEventListener('click', () => {
+    if (!state.currentUser) return;
+    const comps = state.currentUser.companies || [];
+    if (comps.length > 1) {
+      renderUserCompanyList(comps);
+      openCompanySelector();
+    } else if (comps.length === 1) {
+      showToast(`Unidade atual: ${state.selectedCompany || comps[0]}. Solicite vinculação para gerenciar outras lojas.`, 'info');
+    } else if (state.currentUser.canCreateCompany !== false) {
+      openModal('modalFirstCompany');
+    } else {
+      openModal('modalNoCompanyAccess');
+    }
+  });
+
+  // Máscaras para CNPJ e Telefone no formulário da primeira empresa
+  const cnpjInput = document.getElementById('firstCompanyCnpj');
+  cnpjInput?.addEventListener('input', (e) => {
+    let v = e.target.value.replace(/\D/g, '').substring(0, 14);
+    if (v.length > 12) {
+      v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})$/, '$1.$2.$3/$4-$5');
+    } else if (v.length > 8) {
+      v = v.replace(/^(\d{2})(\d{3})(\d{3})(\d{1,4})$/, '$1.$2.$3/$4');
+    } else if (v.length > 5) {
+      v = v.replace(/^(\d{2})(\d{3})(\d{1,3})$/, '$1.$2.$3');
+    } else if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d{1,3})$/, '$1.$2');
+    }
+    e.target.value = v;
+  });
+
+  const phoneInput = document.getElementById('firstCompanyPhone');
+  phoneInput?.addEventListener('input', (e) => {
+    let v = e.target.value.replace(/\D/g, '').substring(0, 11);
+    if (v.length > 10) {
+      v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    } else if (v.length > 6) {
+      v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
+    } else if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+    }
+    e.target.value = v;
   });
 
   // Submit Recuperar Senha (Demonstrativo)
   forgotForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    showToast('Link de recuperação enviado para o e-mail informado.', 'success');
+    showToast('Instruções de recuperação enviadas para o e-mail informado.', 'success');
     document.getElementById('authForgotView').style.display = 'none';
     document.getElementById('authLoginView').style.display = 'flex';
   });
@@ -709,7 +876,22 @@ function logout() {
   sessionStorage.removeItem('dmx_admin_session');
   state.authenticated = false;
   state.currentUser = null;
-  window.location.href = 'login-admin.html';
+  state.selectedCompany = '';
+  closeModal('modalFirstCompany');
+  closeModal('modalNoCompanyAccess');
+  const selOverlay = document.getElementById('companySelectorOverlay');
+  if (selOverlay) selOverlay.style.display = 'none';
+
+  const authOverlay = document.getElementById('authOverlay');
+  if (authOverlay) {
+    authOverlay.style.display = 'flex';
+    document.getElementById('authLoginView').style.display = 'flex';
+    document.getElementById('authRegisterView').style.display = 'none';
+    document.getElementById('authForgotView').style.display = 'none';
+    const pwInput = document.getElementById('loginPassword');
+    if (pwInput) pwInput.value = '';
+  }
+  showToast('Sessão encerrada com sucesso.', 'info');
 }
 
 /* ── Seleção Dinâmica de Empresas (Filtrada por Conta Autenticada) ─ */

@@ -1088,7 +1088,7 @@
   width: 100%;
   max-width: 460px;
   background-color: #FFFFFF;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-card, 10px);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
   padding: var(--space-6);
   position: relative;
@@ -2099,8 +2099,8 @@
   width: 100%;
   max-width: 440px;
   background: #FFFFFF;
-  border-radius: var(--radius-2xl);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-card, 10px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22), 0 4px 14px rgba(0, 0, 0, 0.08);
   padding: 32px;
   display: flex;
   flex-direction: column;

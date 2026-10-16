@@ -16,31 +16,10 @@
     })();
   </script>
 
-  <!-- Proteção Obrigatória de Acesso Administrativo -->
+  <!-- Sessão Unificada DMX CashBack -->
   <script>
-    (function() {
-      try {
-        var sessRaw = sessionStorage.getItem('dmx_admin_session');
-        if (!sessRaw) {
-          window.location.replace('login-admin.html');
-          return;
-        }
-        var sess = JSON.parse(sessRaw);
-        if (!sess || !sess.authenticated || sess.user?.role !== 'admin') {
-          sessionStorage.removeItem('dmx_admin_session');
-          window.location.replace('login-admin.html');
-          return;
-        }
-      } catch (e) {
-        window.location.replace('login-admin.html');
-      }
-    })();
-
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted && !sessionStorage.getItem('dmx_admin_session')) {
-        window.location.replace('login-admin.html');
-      }
-    });
+    // A autenticação e o redirecionamento automático por perfil (Admin/Cliente/Empresa)
+    // são gerenciados de forma centralizada pelo controlador unificado no carregamento.
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -57,25 +36,36 @@
 <!-- ═══════════════════════════════════════════════════════
      0. TELA DE AUTENTICAÇÃO (Login / Cadastro / Recuperação)
 ═══════════════════════════════════════════════════════ -->
-<div class="auth-overlay" id="authOverlay" style="display: none;">
+<div class="auth-overlay" id="authOverlay" style="display: flex;">
   <div class="company-selector-bg-deco" aria-hidden="true">
     <div class="deco-circle deco-circle--1"></div>
     <div class="deco-circle deco-circle--2"></div>
+    <div class="deco-circle deco-circle--3"></div>
     <div class="deco-dollar">
-      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <svg width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <div class="deco-percent">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="5" x2="5" y2="19"/>
+        <circle cx="6.5" cy="6.5" r="2.5"/>
+        <circle cx="17.5" cy="17.5" r="2.5"/>
+      </svg>
     </div>
   </div>
 
   <div class="auth-card">
     
-    <!-- ── Visão de Login ── -->
+    <!-- ── Visão de Login Unificado ── -->
     <div id="authLoginView" style="display: flex; flex-direction: column; gap: 20px;">
       <div class="auth-header">
         <div class="auth-logo-badge">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         </div>
         <h1 class="auth-title">DMX CashBack</h1>
-        <p class="auth-subtitle">Acesse sua conta para gerenciar o sistema</p>
+        <p class="auth-subtitle">Acesse sua conta para entrar na plataforma</p>
       </div>
 
       <!-- Histórico local discreto de contas salvas -->
@@ -95,11 +85,11 @@
         </div>
       </div>
 
-      <!-- Formulário de Login -->
+      <!-- Formulário de Login Unificado -->
       <form id="loginForm" style="display: flex; flex-direction: column; gap: 14px;">
         <div class="input-group">
-          <label class="input-label" for="loginEmail">E-mail corporativo</label>
-          <input type="email" id="loginEmail" class="input" placeholder="seu.email@empresa.com" value="" required autocomplete="username" />
+          <label class="input-label" for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" class="input" placeholder="seu.email@exemplo.com" value="" required autocomplete="username" />
         </div>
 
         <div class="input-group">
@@ -128,43 +118,48 @@
       <div style="text-align: center; font-size: 13px; color: var(--color-text-secondary); border-top: 1px solid var(--neutral-100); padding-top: 14px;">
         Não possui uma conta? <a href="#" class="auth-link" id="linkGoToRegister">Criar conta</a>
       </div>
-      <div style="text-align: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 6px;">
-        É um consumidor com cashback? <a href="login-cliente.html" class="auth-link" style="font-weight: 700;">Acessar Área do Cliente →</a>
-      </div>
     </div>
 
-    <!-- ── Visão de Cadastro ── -->
+    <!-- ── Visão de Cadastro Unificado ── -->
     <div id="authRegisterView" style="display: none; flex-direction: column; gap: 18px;">
       <div class="auth-header">
         <h2 class="auth-title" style="font-size: 20px;">Criar nova conta</h2>
-        <p class="auth-subtitle">Informe seus dados para solicitar acesso</p>
+        <p class="auth-subtitle">Informe seus dados para iniciar na plataforma</p>
       </div>
 
       <form id="registerForm" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="input-group">
-          <label class="input-label">Nome completo <span class="required-mark">*</span></label>
+          <label class="input-label" for="regAccountType">Tipo de perfil <span class="required-mark">*</span></label>
+          <select id="regAccountType" class="input" required>
+            <option value="business">Empresa / Lojista (Gerenciar cashback para clientes)</option>
+            <option value="client">Consumidor / Cliente (Acompanhar meu cashback)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="regName">Nome completo <span class="required-mark">*</span></label>
           <input type="text" id="regName" class="input" placeholder="Ex: Seu Nome Completo" required autocomplete="name" />
         </div>
 
         <div class="input-group">
-          <label class="input-label">E-mail corporativo <span class="required-mark">*</span></label>
-          <input type="email" id="regEmail" class="input" placeholder="seu.email@empresa.com" required autocomplete="email" />
+          <label class="input-label" for="regEmail">E-mail <span class="required-mark">*</span></label>
+          <input type="email" id="regEmail" class="input" placeholder="seu.email@exemplo.com" required autocomplete="email" />
         </div>
 
         <div class="form-grid-2">
           <div class="input-group">
-            <label class="input-label">Senha <span class="required-mark">*</span></label>
+            <label class="input-label" for="regPassword">Senha <span class="required-mark">*</span></label>
             <input type="password" id="regPassword" class="input" placeholder="••••••••" required autocomplete="new-password" />
           </div>
           <div class="input-group">
-            <label class="input-label">Confirmar senha <span class="required-mark">*</span></label>
+            <label class="input-label" for="regPasswordConfirm">Confirmar senha <span class="required-mark">*</span></label>
             <input type="password" id="regPasswordConfirm" class="input" placeholder="••••••••" required autocomplete="new-password" />
           </div>
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Empresa vinculada (opcional)</label>
-          <input type="text" id="regCompany" class="input" placeholder="Nome da empresa ou loja" />
+        <div class="input-group" id="regCompanyGroup">
+          <label class="input-label" for="regCompany">Nome da Empresa (opcional)</label>
+          <input type="text" id="regCompany" class="input" placeholder="Nome da sua loja ou empresa" />
         </div>
 
         <button type="submit" class="btn btn--primary btn--md" id="regSubmitBtn" style="width: 100%; margin-top: 8px;">
@@ -401,7 +396,7 @@
 
       <!-- Empresa e Rota Atual (Navegação Integrada e Compacta) -->
       <div class="topbar-company">
-        <span class="topbar-company-name" id="companyNameDisplay">DMX CashBack</span>
+        <span class="topbar-company-name" id="companyNameDisplay" title="Clique para alternar de empresa">DMX CashBack <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: 2px; vertical-align: middle;"><path d="M6 9l6 6 6-6"/></svg></span>
         <span class="topbar-breadcrumb-sep" aria-hidden="true">/</span>
         <span class="topbar-breadcrumb-current" id="topbarCurrentPage">Início</span>
       </div>
@@ -2194,9 +2189,9 @@
   </div>
 </div>
 
-<!-- 10. Modal de Cadastro da Primeira Empresa (Onboarding de Nova Conta) -->
-<div class="modal-backdrop" id="modalFirstCompany" style="z-index: 1050;">
-  <div class="modal-dialog" style="max-width: 480px;">
+<!-- 10. Modal de Cadastro da Primeira Empresa (Cenário A - Onboarding de Nova Conta) -->
+<div class="modal-backdrop" id="modalFirstCompany" style="z-index: 1050; display: none;">
+  <div class="modal-dialog" style="max-width: 520px;">
     <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
       <div style="flex: 1;"></div>
     </div>
@@ -2207,36 +2202,91 @@
         </div>
         <h3 style="font-size: 20px; font-weight: 800; color: var(--brand-dark); margin: 0;">Cadastre sua primeira empresa</h3>
         <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; text-align: center;">
-          Para começar a gerenciar seus lotes e clientes no DMX CashBack, informe a sua loja ou empresa principal.
+          Para começar a gerenciar seus lotes e clientes no DMX CashBack, informe os dados da sua empresa ou loja principal.
         </p>
       </div>
 
-      <form id="formFirstCompany" style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
-        <div class="input-group">
-          <label class="input-label" for="firstCompanyName">Nome da Empresa / Razão Social <span class="required-mark">*</span></label>
-          <input type="text" id="firstCompanyName" class="input" placeholder="Ex: Calçados Silva ou Padaria Central" required autocomplete="off" />
+      <form id="formFirstCompany" style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label" for="firstCompanyTradingName">Nome Fantasia <span class="required-mark">*</span></label>
+            <input type="text" id="firstCompanyTradingName" class="input" placeholder="Ex: Calçados Silva" required autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="firstCompanyLegalName">Razão Social <span class="required-mark">*</span></label>
+            <input type="text" id="firstCompanyLegalName" class="input" placeholder="Ex: Silva & Filhos Ltda" required autocomplete="off" />
+          </div>
         </div>
 
-        <div class="input-group">
-          <label class="input-label" for="firstCompanyCnpj">CNPJ (opcional)</label>
-          <input type="text" id="firstCompanyCnpj" class="input" placeholder="00.000.000/0001-00" autocomplete="off" />
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label" for="firstCompanyCnpj">CNPJ <span class="required-mark">*</span></label>
+            <input type="text" id="firstCompanyCnpj" class="input" placeholder="00.000.000/0001-00" required autocomplete="off" maxlength="18" />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="firstCompanySegment">Segmento / Ramo <span class="required-mark">*</span></label>
+            <select id="firstCompanySegment" class="input" required>
+              <option value="">Selecione o segmento...</option>
+              <option value="Varejo de Calçados e Vestuário">Varejo de Calçados e Vestuário</option>
+              <option value="Alimentação e Restaurantes">Alimentação e Restaurantes</option>
+              <option value="Supermercados e Conveniência">Supermercados e Conveniência</option>
+              <option value="Saúde, Beleza e Farmácias">Saúde, Beleza e Farmácias</option>
+              <option value="Oficina e Automotivo">Oficina e Automotivo</option>
+              <option value="Serviços em Geral">Serviços em Geral</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
         </div>
 
-        <div class="input-group">
-          <label class="input-label" for="firstCompanySegment">Segmento / Ramo de Atuação (opcional)</label>
-          <select id="firstCompanySegment" class="input">
-            <option value="Varejo de Calçados e Vestuário">Varejo de Calçados e Vestuário</option>
-            <option value="Alimentação e Restaurantes">Alimentação e Restaurantes</option>
-            <option value="Supermercados e Conveniência">Supermercados e Conveniência</option>
-            <option value="Oficina e Automotivo">Oficina e Automotivo</option>
-            <option value="Serviços em Geral">Serviços em Geral</option>
-          </select>
+        <div class="form-grid-2">
+          <div class="input-group">
+            <label class="input-label" for="firstCompanyEmail">E-mail de contato <span class="required-mark">*</span></label>
+            <input type="email" id="firstCompanyEmail" class="input" placeholder="contato@empresa.com" required autocomplete="email" />
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="firstCompanyPhone">Telefone de contato</label>
+            <input type="tel" id="firstCompanyPhone" class="input" placeholder="(00) 00000-0000" autocomplete="tel" maxlength="15" />
+          </div>
         </div>
 
         <button type="submit" class="btn btn--primary btn--lg" id="btnSaveFirstCompany" style="width: 100%; margin-top: 8px;">
           Salvar e Acessar o Sistema &rarr;
         </button>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- 11. Modal de Aviso de Sem Empresa Vinculada (Cenário D - Usuário sem Empresa e sem Permissão) -->
+<div class="modal-backdrop" id="modalNoCompanyAccess" style="z-index: 1050; display: none;">
+  <div class="modal-dialog" style="max-width: 480px;">
+    <div class="modal-body" style="padding: 32px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background-color: var(--color-warning-bg, #FEF3E2); color: var(--color-warning, #D4831A); display: flex; align-items: center; justify-content: center;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+
+      <h3 style="font-size: 20px; font-weight: 800; color: var(--brand-dark); margin: 0;">Nenhuma Empresa Vinculada</h3>
+      
+      <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+        Sua conta foi autenticada com sucesso, porém ela ainda não está associada a nenhuma loja ou filial cadastrada.
+      </p>
+
+      <div style="background-color: var(--neutral-50, #F9FBF9); border: 1px solid var(--color-border); border-radius: var(--radius-card, 10px); padding: 14px 16px; font-size: 12px; color: var(--color-text-secondary); text-align: left; width: 100%; line-height: 1.5;">
+        <div style="font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Como liberar seu acesso:
+        </div>
+        Como o seu perfil de usuário não possui permissão para cadastrar novas empresas diretamente, solicite ao <strong>administrador da sua loja</strong> ou ao <strong>administrador geral do DMX CashBack</strong> a inclusão do seu e-mail na unidade correspondente.
+      </div>
+
+      <div style="display: flex; gap: 10px; width: 100%; margin-top: 8px;">
+        <button type="button" class="btn btn--primary btn--md" onclick="logout()" style="flex: 1;">
+          Trocar de Conta / Sair
+        </button>
+      </div>
     </div>
   </div>
 </div>

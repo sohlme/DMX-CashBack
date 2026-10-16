@@ -22,17 +22,17 @@
       try {
         var sess = sessionStorage.getItem('dmx_client_session');
         if (!sess) {
-          window.location.replace('login-cliente.html');
+          window.location.replace('index.html');
         }
       } catch (e) {
-        window.location.replace('login-cliente.html');
+        window.location.replace('index.html');
       }
     })();
 
     // Previne acesso pelo botão voltar do navegador após logout
     window.addEventListener('pageshow', function(event) {
       if (event.persisted && !sessionStorage.getItem('dmx_client_session')) {
-        window.location.replace('login-cliente.html');
+        window.location.replace('index.html');
       }
     });
   </script>

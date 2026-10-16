@@ -583,7 +583,7 @@ function handleClientLogout() {
   } catch (e) {}
   showClientToast('Sessão encerrada com sucesso. Redirecionando para o login...', 'info');
   setTimeout(() => {
-    window.location.replace('login-cliente.html');
+    window.location.replace('index.html');
   }, 400);
 }
 
