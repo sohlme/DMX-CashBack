@@ -6,35 +6,12 @@
   <title>DMX CashBack — Área do Cliente</title>
   <meta name="description" content="Portal do consumidor DMX CashBack — consulte seu saldo de cashback, extrato de movimentações, resgate no caixa e lojas parceiras credenciadas." />
 
-  <!-- Compatibilidade GitHub Pages: redireciona para URL com barra final caso seja acessado sem ela -->
+  <!-- Redirecionamento transparente para a pasta exclusiva do cliente -->
+  <meta http-equiv="refresh" content="0; url=./dmx-cashback-clientes/" />
   <script>
     (function() {
-      var p = window.location.pathname;
-      if (p && !p.endsWith('/') && !p.endsWith('.html')) {
-        window.location.replace(p + '/' + window.location.search + window.location.hash);
-      }
+      window.location.replace('./dmx-cashback-clientes/' + window.location.search + window.location.hash);
     })();
-  </script>
-
-  <!-- Proteção de Rota: Exige autenticação prévia do consumidor -->
-  <script>
-    (function() {
-      try {
-        var sess = sessionStorage.getItem('dmx_client_session');
-        if (!sess) {
-          window.location.replace('index.html');
-        }
-      } catch (e) {
-        window.location.replace('index.html');
-      }
-    })();
-
-    // Previne acesso pelo botão voltar do navegador após logout
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted && !sessionStorage.getItem('dmx_client_session')) {
-        window.location.replace('index.html');
-      }
-    });
   </script>
 
   <!-- Tipografia Manrope -->

@@ -6,13 +6,11 @@
   <title>DMX CashBack — Login do Cliente</title>
   <meta name="description" content="Acesse sua carteira digital DMX CashBack — consulte seu saldo acumulado, extrato de compras e gere autorizações para resgate no caixa." />
 
-  <!-- Compatibilidade GitHub Pages: redireciona para URL com barra final caso seja acessado sem ela -->
+  <!-- Redirecionamento transparente para o login na pasta exclusiva do cliente -->
+  <meta http-equiv="refresh" content="0; url=./dmx-cashback-clientes/login.html" />
   <script>
     (function() {
-      var p = window.location.pathname;
-      if (p && !p.endsWith('/') && !p.endsWith('.html')) {
-        window.location.replace(p + '/' + window.location.search + window.location.hash);
-      }
+      window.location.replace('./dmx-cashback-clientes/login.html' + window.location.search + window.location.hash);
     })();
   </script>
 

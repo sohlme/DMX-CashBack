@@ -596,7 +596,7 @@ function initAuth() {
         sessionStorage.setItem('dmx_client_session', JSON.stringify(clientSession));
         showToast('Identificado como Consumidor. Acessando sua Área do Cliente...', 'success');
         setTimeout(() => {
-          window.location.href = 'cliente.html';
+          window.location.href = './dmx-cashback-clientes/';
         }, 500);
         return;
       }
@@ -728,7 +728,7 @@ function initAuth() {
 
         showToast('Conta de consumidor criada com sucesso! Acessando sua Área do Cliente...', 'success');
         setTimeout(() => {
-          window.location.href = 'cliente.html';
+          window.location.href = './dmx-cashback-clientes/';
         }, 500);
         return;
       }
